@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <color name="titlebar_background">#303435</color>
+    
+    <color name="dev_closed_color">#FF0000</color>
+    <color name="dev_running_color">#00CC00</color>
+    <color name="white">#FFFFFF</color>
+</resources>

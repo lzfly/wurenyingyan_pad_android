@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item android:state_selected="true">
+        
+        <bitmap android:src="@drawable/qly_icon_switch_on" android:antialias="true" />
+        
+    </item>
+    
+    <item>
+        
+        <bitmap android:src="@drawable/qly_icon_switch_off" android:antialias="true" />
+        
+    </item>
+
+</selector>

@@ -4,5 +4,14 @@
     <string name="app_name">Transitation</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
-
+    
+    <string name="gateway_receiving_hint">当前未接入网关</string>
+	<string name="img_desc">我是图片</string>
+	<string name="dev_nick_name">名称：</string>
+	<string name="gate_IP_name">地址：</string>
+	<string name="gate_sn_name">SN：</string>
+    <string name="dev_state_running">正在运行&#8230;</string>
+    <string name="dev_state_closed">已停止</string>
+     <string name="view_camera_lab">查看</string>
+     <string name="title_activity_device">网关</string>
 </resources>

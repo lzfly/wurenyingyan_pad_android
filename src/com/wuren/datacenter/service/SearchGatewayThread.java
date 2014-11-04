@@ -31,7 +31,7 @@ public class SearchGatewayThread extends Thread{
     private static final int MAX_DATA_PACKET_LENGTH = 256;
     
     //每隔30秒搜索在局域网一次网关
-    private static final int SEARCH_INTEVAL_SECOND=30;
+    private static final int SEARCH_INTEVAL_SECOND=10;
    
     private Context mContext;
     public SearchGatewayThread( Context context) {  
@@ -209,8 +209,8 @@ public class SearchGatewayThread extends Thread{
     	Socket mSocket=null;
     	try {
 			mSocket = new Socket(gate.getIP(), 8001);	
-			mSocket.setKeepAlive(true);
-			mSocket.setSoTimeout(120);  
+//			mSocket.setKeepAlive(true);
+//			mSocket.setSoTimeout(120);  
 //			//将socket与网关SN相关联
 			DataTransactionService.mHtGateway_Socket_Table.put(gate.getSN(), mSocket);
 		} catch (UnknownHostException e) {

@@ -32,11 +32,11 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		
-		 Intent in = new Intent( this, DataTransactionService.class);
-		 in.setAction(DataTransactionService.SEARCH_GATEWAY_ACTION);		
-		 this.startService(in);	
-		 
-		 
+//		 Intent in = new Intent( this, DataTransactionService.class);
+//		 in.setAction(DataTransactionService.SEARCH_GATEWAY_ACTION);		
+//		 this.startService(in);	
+//		 
+//		 
 		 
 //		 in = new Intent( this, DataTransactionService.class);
 //		 in.setAction(DataTransactionService.SEARCH_DEVICES_ACTION);		

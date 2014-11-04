@@ -19,6 +19,8 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
@@ -34,6 +36,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Base64;
 import android.util.Log;
 
 public class DataTransactionService extends Service{
@@ -83,7 +86,49 @@ public class DataTransactionService extends Service{
 		}
 	}
 	
+	  ///////////////////////////////////////////////////////////////////////////////////
+		 // MD5º”√‹		 
+	     private byte[] getMD5ByteArray(String str) {     
+	        MessageDigest messageDigest = null;     
+	     
+	        try {     
+	            messageDigest = MessageDigest.getInstance("MD5");     
+	     
+	            messageDigest.reset();     
+	     
+	            messageDigest.update(str.getBytes("UTF-8"));     
+	        } catch (NoSuchAlgorithmException e) {     
+	            System.out.println("NoSuchAlgorithmException caught!");     
+	            System.exit(-1);     
+	        } catch (UnsupportedEncodingException e) {     
+	            e.printStackTrace();     
+	        }     
+	     
+	        byte[] byteArray = messageDigest.digest();
+	        
+	        Log.v("jiaojc","after md5,byteArray length:"+byteArray );
+	        return byteArray;
+	     
+	    }  
+	    
 	
+	
+	private String f(String a,String b,String c)
+	{
+		
+		String x=a+b+c;
+		String base64=Base64.encodeToString(getMD5ByteArray(x), Base64.DEFAULT);
+		
+		String result1=base64.replace('+', 'm');
+		String result2=result1.replace('/', 'f');
+		
+		String finalResult=result2.replaceAll("=", "");
+		
+		 
+		return finalResult;
+	}
+	
+	//////////////////////////////////////////////////////////////////////
 	@Override
 	public void onCreate() {
 		// TODO Auto-generated method stub
@@ -98,7 +143,13 @@ public class DataTransactionService extends Service{
 		{
 			configPath.mkdir();
 		}
+//		
+//		String test=f("A000001A2B3C4F","sprint","foobar");
+//		String test2=f("","","foobar");
+//		Log.v("jiaojc","test:"+test+"\tlength:"+test.length());
+//		Log.v("jiaojc","test2:"+test2+"\t test2 length:"+test2.length());
 		
+		processSearchGateway();     
 	
 		
 		
@@ -246,6 +297,7 @@ public class DataTransactionService extends Service{
         	if(strAction == null)
         	{
         		Log.i( LOG_TAG, ".... Warning: the ActiveCare service is started with no action");
+        		return;
         	}
         	
         	if ( strAction.equals(SEARCH_GATEWAY_ACTION))
