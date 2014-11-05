@@ -6,12 +6,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-
+import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.BaseActivity;
 import com.wuren.datacenter.util.DataUtils;
-import com.wuren.datacenter.util.FebeeAPI;
 import com.wuren.datacenter.widgets.MultiColumnAdapter;
 import com.wuren.datacenter.widgets.MultiColumnView;
 
@@ -37,7 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class GatewayActivity extends BaseActivity {
+public class DeviceActivity extends BaseActivity {
 	
 	class DeviceAdapter extends MultiColumnAdapter
 	{
@@ -46,46 +45,33 @@ public class GatewayActivity extends BaseActivity {
 		public View getView(Context context, int index, boolean isInsert) {
 			
 			
-			View view = LayoutInflater.from(context).inflate(R.layout.qly_view_one_column_gate, null);
+			View view = LayoutInflater.from(context).inflate(R.layout.qly_view_one_column_device, null);
 //			
 			Object data = getItem(index);
-			if (data != null && data instanceof GatewayBean)
+			if (data != null && data instanceof DeviceInfoBean)
 			{
-				GatewayBean gate = (GatewayBean)data;
-				LinearLayout gateContainer = (LinearLayout)view.findViewById(R.id.sensor_container);
-				gateContainer.setTag(R.string.tag_gate_circle, gate);
-				gateContainer.setOnClickListener(sensorContainerOnClickListener);
-				
-//
+				DeviceInfoBean device = (DeviceInfoBean)data;
+		
 					ImageView sensorType = (ImageView)view.findViewById(R.id.sensor_type_image);
 					sensorType.setImageResource(R.drawable.qly_icon_camera_sensor);
 //					
 					
 					TextView typeNameView = (TextView)view.findViewById(R.id.device_type_name);					
 					
-					Resources res=GatewayActivity.this.getResources();
-				
-					typeNameView.setText(res.getString(R.string.gate_IP_name)+gate.getIP());
+//					Resources res=DeviceActivity.this.getResources();
+//				
+//					typeNameView.setText(res.getString(R.string.gate_IP_name)+gate.getIP());
 //					
 					TextView aliasNameView = (TextView)view.findViewById(R.id.device_alias_name);
-					aliasNameView.setText(gate.getSN().toUpperCase());
+					aliasNameView.setText(Integer.toHexString(device.getShortAddr()).toUpperCase());
 				
 					
-					TextView gate_sn_view = (TextView)view.findViewById(R.id.gate_sn);
-					gate_sn_view.setText(gate.getSN().toUpperCase());
+//					TextView gate_sn_view = (TextView)view.findViewById(R.id.gate_sn);
+//					gate_sn_view.setText(gate.getSN().toUpperCase());
 				
 					
-					
-					Button btDiscoveryDevice = (Button)view.findViewById(R.id.btn_discovery_device);
-					btDiscoveryDevice.setTag(R.string.tag_gate_discovery, gate);
-					btDiscoveryDevice.setOnClickListener(discorveryClickListener);
-					
-					
-					Button btFactoryDevice = (Button)view.findViewById(R.id.btn_factory_gate);	
-					btFactoryDevice.setTag(R.string.tag_gate_factory, gate);
-					btFactoryDevice.setOnClickListener(factoryDeviceClickListener);
-					
-			
+//				
+				//	m_SensorViews.put(gate.getSN(), view);
 			}
 //			
 			return view;
@@ -99,81 +85,32 @@ public class GatewayActivity extends BaseActivity {
 		
 	}
 	
-	public synchronized void addNewGate(GatewayBean gate)
-	{
-		boolean haved = false;
-		
-		for (int i = 0; i < m_DeviceAdapter.getCount(); i++)
-		{
-			Object item = m_DeviceAdapter.getItem(i);
-			if (item instanceof GatewayBean)
-			{
-				if (((GatewayBean)item).getSN().equals(gate.getSN()))
-				{
-					haved = true;
-					break;
-				}
-			}
-		}
-		
-		if (!haved)
-		{
-			m_DeviceAdapter.add(gate);
-		}
-		
-		m_ReceivingContainer.setVisibility(View.GONE);
-		m_ViewContainer.setVisibility(View.VISIBLE);
 
-	}
 	
+	
+	
+	View.OnClickListener viewCameraClickListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+
+		}
+	};
+
 	
 	View.OnClickListener sensorContainerOnClickListener = new View.OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			
-			Object tagValue = v.getTag(R.string.tag_gate_circle);
-			if (tagValue instanceof GatewayBean)
-			{
-				GatewayBean gate = (GatewayBean)tagValue;
-				//启动与该网关相关联的设备列表。
-				Intent intent=new Intent(GatewayActivity.this,DeviceActivity.class);
-				
-				intent.putExtra("gateway_sn", gate.getSN());
-				
-				GatewayActivity.this.startActivity(intent);
-			}
-
-		}
-		
-	};
-	
-	
-View.OnClickListener discorveryClickListener = new View.OnClickListener() {
-		
-		@Override
-		public void onClick(View v) {
-			
-			Log.v("jiaojc","discovery device");
 
 		}
 		
 	};
 
-	View.OnClickListener factoryDeviceClickListener = new View.OnClickListener() {
+	View.OnClickListener switchOnOffClickListener = new View.OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			
-			Log.v("jiaojc","begin factory ...");
-			Object tagValue = v.getTag(R.string.tag_gate_factory);
-			if (tagValue instanceof GatewayBean)
-			{
-				GatewayBean gate = (GatewayBean)tagValue;
-				
-				FebeeAPI.getInstance().resetGate(gate.getSN(), false, null);
-			}
-			
 
 		}
 		
@@ -186,12 +123,13 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 	
 	private LinearLayout m_ReceivingContainer;
 	
-	
+	private GatewayBean mGate;
+	private HashMap<String, View> m_SensorViews = new HashMap<String, View>();
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.qly_activity_gateway);
+		setContentView(R.layout.qly_activity_device);
 		m_ReceivingContainer = (LinearLayout)findViewById(R.id.device_receiving_container);
 		
 		m_ViewContainer = (ScrollView)findViewById(R.id.device_column_views_container);
@@ -201,6 +139,11 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 //
 		m_DeviceAdapter = new DeviceAdapter();
 		m_MultiColumnView.setAdapter(m_DeviceAdapter);
+		
+		Intent intent=this.getIntent();
+		String gateway_sn=intent.getStringExtra("gateway_sn");
+		
+		mGate=DataUtils.getInstance().getGate(gateway_sn);
 		
 		initDevice();
 		
@@ -217,17 +160,17 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
             	            	
                 handler.postDelayed(this, TIME);
                 
-                List<GatewayBean> new_gates;
-                for(int i=0;i<DataUtils.mListGateway.size();i++)
+                List<DeviceInfoBean> new_devices;
+                for(int i=0;i<DataUtils.mListDevices.size();i++)
                 {
-                	GatewayBean item=DataUtils.mListGateway.get(i);
+                	DeviceInfoBean item=DataUtils.mListDevices.get(i);
                 	boolean haved=false;
                 	for (int j = 0; j < m_DeviceAdapter.getCount(); j++)
             		{
             			Object obj = m_DeviceAdapter.getItem(j);
-            			if (item instanceof GatewayBean)
+            			if (item instanceof DeviceInfoBean)
             			{
-            				if (((GatewayBean)obj).getSN().equals(item.getSN()))
+            				if (((DeviceInfoBean)obj).getIEEE_string_format().equals(item.getIEEE_string_format()))
             				{
             					haved = true;
             					break;
@@ -237,7 +180,8 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
                 	
                 	if (!haved)
             		{
-            			m_DeviceAdapter.add(item);
+                		if(item.getGateway_SN().equals(mGate.getSN()))
+                			m_DeviceAdapter.add(item);
             		}
                 	
                 	
@@ -265,10 +209,21 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 			@Override
 			public void run() {
 				
-				List<GatewayBean> gates=DataUtils.mListGateway;
-				if (gates!=null && gates.size() > 0)
+				List<DeviceInfoBean> devices=new ArrayList();
+				
+				for(int i=0;i<DataUtils.mListDevices.size();i++)
 				{
-					m_DeviceAdapter.add(gates.toArray());
+					DeviceInfoBean temp=DataUtils.mListDevices.get(i);
+					if(temp.getGateway_SN().equals(mGate.getSN()))
+					{
+						devices.add(temp);
+					}
+					
+				}
+				
+				if (devices!=null && devices.size() > 0)
+				{
+					m_DeviceAdapter.add(devices.toArray());
 				}
 				
 				if (m_DeviceAdapter.getCount() > 0)

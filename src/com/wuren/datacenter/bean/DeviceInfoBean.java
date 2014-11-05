@@ -11,6 +11,8 @@ public class DeviceInfoBean {
 	
 	private byte[] IEEE;//IEEE地址
 	
+	private String strIEEE;//字符串格式的IEEE
+	
 	private int shortAddr;//短地址
 	
 	private char endPoint;//end point值
@@ -21,8 +23,28 @@ public class DeviceInfoBean {
 		
 	private int clusterID;//cluster id
 	
+	private int deviceType;
+	
+	private String gateway_SN;
+	
 	
 		
+	public String getGateway_SN() {
+		return gateway_SN;
+	}
+
+	public void setGateway_SN(String gateway_SN) {
+		this.gateway_SN = gateway_SN;
+	}
+
+	public int getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(int deviceType) {
+		this.deviceType = deviceType;
+	}
+
 	public int getClusterID() {
 		return clusterID;
 	}
@@ -49,6 +71,14 @@ public class DeviceInfoBean {
 		this.onlineStatus = isOnline;
 	}
 
+	public String getIEEE_string_format() {
+		return strIEEE;
+	}
+
+	public void setIEEE_string_format(String str_ieee) {
+		strIEEE = str_ieee;
+	}
+	
 	public String getSN() {
 		return SN;
 	}

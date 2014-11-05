@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
+import com.wuren.datacenter.util.DataUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -55,13 +56,13 @@ public class SearchGatewayThread extends Thread{
     
     private boolean isExist(GatewayBean gate)
     {
-    	if(DataTransactionService.mListGateway==null)
+    	if(DataUtils.mListGateway==null)
     		return false;
     	
     	boolean b=false;
-    	for(int i=0;i<DataTransactionService.mListGateway.size();i++)
+    	for(int i=0;i<DataUtils.mListGateway.size();i++)
     	{    		
-    		GatewayBean temp=DataTransactionService.mListGateway.get(i);
+    		GatewayBean temp=DataUtils.mListGateway.get(i);
     		if(temp.getIP().equalsIgnoreCase(gate.getIP()))
     		{
     			b=true;
@@ -130,8 +131,6 @@ public class SearchGatewayThread extends Thread{
 		            	
 		            	String strIPArray[]=strArray[0].split(":");
 		            	
-		            	if(DataTransactionService.mListGateway==null)
-		            		DataTransactionService.mListGateway=new ArrayList();
 		            	
 		            	gate.setIP(strIPArray[1]);
 		            	
@@ -159,7 +158,7 @@ public class SearchGatewayThread extends Thread{
 		            	
 		            	if(!isExist(gate))
 		            	{
-		            		DataTransactionService.mListGateway.add(gate);
+		            		DataUtils.mListGateway.add(gate);
 		            		//开始启动监听线程 开始监听该gateway数据
 		            		beginListenGateway(gate);
 		            		
@@ -223,9 +222,13 @@ public class SearchGatewayThread extends Thread{
 		
     	ServiceSocketMonitor serviceSocketMonitor=null;
 						
-    	serviceSocketMonitor=new ServiceSocketMonitor(mSocket,mContext);
-				
-		(new Thread(serviceSocketMonitor)).start();
+    	serviceSocketMonitor=new ServiceSocketMonitor(mContext,mSocket,gate);
+    	//DataUtils
+    	
+    	(new Thread(serviceSocketMonitor)).start();
+    	
+		//给监听的serviceSocketMonitor保存起来，当断链时候要remove掉
+		DataUtils.mHtGatewayReceive_Socket_Thread.put(gate.getSN(), serviceSocketMonitor);
 		
 		return mSocket;
 		

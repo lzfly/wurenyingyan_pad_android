@@ -33,7 +33,7 @@ public class MainActivity extends Activity {
 		
 		
 //		 Intent in = new Intent( this, DataTransactionService.class);
-//		 in.setAction(DataTransactionService.SEARCH_GATEWAY_ACTION);		
+//		 in.setAction(DataTransactionService.SEARCH_GATEWAY_ACTION);
 //		 this.startService(in);	
 //		 
 //		 

@@ -81,16 +81,13 @@
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
 		                android:textColor="#666666"
-		                android:text="@string/device_state_name" />
+		                android:text="@string/gate_sn_name" />
 		            
 		            <TextView
-		                android:id="@+id/device_current_state"
+		                android:id="@+id/gate_sn"
 		                android:layout_width="80dp"
-		                android:layout_height="wrap_content"
-		                android:textColor="@color/dev_closed_color"
-		                android:text="@string/dev_state_closed" />
-		            
-		            
+		                android:layout_height="wrap_content"		                
+		                 />
 		            
 		        </LinearLayout>
 	            
@@ -102,17 +99,29 @@
 	            android:orientation="vertical"
 	            android:layout_alignParentRight="true" >
 	            
-	           
+	          
 	            
 	            <Button
-	                android:id="@+id/view_camera_button"
+	                android:id="@+id/btn_discovery_device"
 	                android:layout_width="66dp"
 	                android:layout_height="28dp"
 	                android:background="@drawable/qly_selector_view_camera_background"
 	                android:textColor="#FCFCFC"
 	                android:textSize="15sp"
-	                android:text="@string/view_camera_lab"
-	                />
+	                android:text="@string/discovery_device"
+	                 />
+	            
+	            <Button
+	                android:id="@+id/btn_factory_gate"
+	                android:layout_marginTop="20dp"
+	                android:layout_width="66dp"
+	                android:layout_height="28dp"
+	                android:background="@drawable/qly_selector_view_camera_background"
+	                android:textColor="#FCFCFC"
+	                android:textSize="15sp"
+	                android:text="@string/factory_gate"
+	                 />
+	            
 	            
 	        </LinearLayout>
 	        

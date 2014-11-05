@@ -29,6 +29,7 @@ import java.util.List;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
+import com.wuren.datacenter.util.DataUtils;
 
 import android.app.Service;
 import android.content.Context;
@@ -58,7 +59,7 @@ public class DataTransactionService extends Service{
 	//心跳进程启动
 	public static final String SEARCH_HEART_BEAT_ACTION="com.wuren.datacenter.HEARTBEAT";
 	
-	public static List<GatewayBean> mListGateway;
+	
 	
 	
 	
@@ -79,11 +80,9 @@ public class DataTransactionService extends Service{
 	
 	private void processSearchGateway()
 	{
-		if(mListGateway==null)
-		{
 			//new SearchGatewayThread(ConstUtils.S_SEARCH_GATEWAY_COMMAND,this).start();			
 			new SearchGatewayThread(this).start();
-		}
+		
 	}
 	
 	  ///////////////////////////////////////////////////////////////////////////////////
@@ -170,103 +169,9 @@ public class DataTransactionService extends Service{
 
 	
 	
-	public  byte[] getSendSrpc(Socket socket,byte[] msg)
-    {
-		
-		//获得SN array
-		String ip=socket.getInetAddress().getHostAddress();
-		byte[] sn=null;
-		for(int i=0;i<mListGateway.size();i++)
-		{
-			String temp=mListGateway.get(i).getIP();
-			
-			if(temp.equalsIgnoreCase(ip))
-			{
-				sn=mListGateway.get(i).getSNArray();
-				break;
-			}
-		}
-		
-		if(sn==null)
-			return null;
-		
-        int j = msg.length;
-        byte[] bt1 = new byte[j + 7];
-        bt1[0] = (byte)((j + 7) & 0xff);
-        bt1[1] = (byte)(((j + 7) & 0xff00) / 0x100);
-        
-       
-        
-        for (int i = 0; i < 4; i++)
-        {
-            bt1[i + 2] = sn[i];
-            
-        }
-        bt1[6] = (byte)0xfe;
-        
-        for (int i = 0; i < j; i++)
-        {
-            bt1[7 + i] = msg[i];
-            
-           
-        }
-        
-        
-        String command="";
-		for(int k=0;k<bt1.length;k++)
-		{
-			command+=(bt1[k]&0xff);
-			command+=" ";
-			
-		}
-		
-		 Log.v("jiaojc",socket.getInetAddress().getHostAddress()+" begin send command:"+command+"\n"+"socket is connect?"+socket.isConnected());
-        
-        return bt1;
-
-    }
+	
 	
 	 
-	private void executeCommand(Socket socket,int mControlType)
-	{
-		   //生成输出内容
-           byte[] msg=null;
-           
-           switch(mControlType)
-           {
-            case ConstUtils.FbeeControlCommand.RPCS_GET_DEVICES:
-        	   
-        	    msg=new byte[2];
-           		msg[ConstUtils.FbeeControlCommand.SRPC_CMD_ID_POS] = ConstUtils.FbeeControlCommand.RPCS_GET_DEVICES;
-           		msg[ConstUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] = 0;
-           		break;
-           		
-           	default:
-           		msg=null;
-           		break;
-           }
-         
-         	try {  	           	            	            
-	            //获取输出流
-	            OutputStream os= socket.getOutputStream();
-	            
-	            byte[] wr=getSendSrpc(socket,msg);
-	            
-	            //写入
-	            os.write(wr);
-	            
-	            os.flush();
-	            
-	            //new Thread(new ServiceSocketMonitor(mSocket,ConstUtils.FbeeControlCommand.RPCS_GET_DEVICES,this)).start();
-	              
-	        } catch (UnknownHostException e) {  
-	            // TODO Auto-generated catch block  
-	            e.printStackTrace();  
-	        } catch (IOException e) {  
-	            // TODO Auto-generated catch block  
-	            e.printStackTrace();  
-	        }
-	}
 	
 	
 	private class ProcessSessionRequest implements Runnable
@@ -306,21 +211,6 @@ public class DataTransactionService extends Service{
         		processSearchGateway();        		
 	   		}
         	
-        	//启动心跳监听网关是否断连
-        	if ( strAction.equals(SEARCH_HEART_BEAT_ACTION))
-        	{
-        		String gateway_sn=mIntent.getStringExtra("gateway_sn");
-        		Object obj=mHtGateway_Socket_Table.get(gateway_sn);
-        		if(obj!=null)
-  	 		    {
-        			 Socket socket=(Socket)obj; 
-        			 
-        			 HeartBeatRequest heartBeatRequest = new HeartBeatRequest(socket);
-    	 			 new Thread(heartBeatRequest).start();	 
-  	 		    }
-  	 		  
-        	}
-        	
         	
         	
         	if ( strAction.equals(SEARCH_DEVICES_ACTION))
@@ -337,6 +227,23 @@ public class DataTransactionService extends Service{
 	 		  }
         		
 	   		}
+        	
+        	//启动心跳监听网关是否断连
+        	if ( strAction.equals(SEARCH_HEART_BEAT_ACTION))
+        	{
+        		String gateway_sn=mIntent.getStringExtra("gateway_sn");
+        		Object obj=mHtGateway_Socket_Table.get(gateway_sn);
+        		if(obj!=null)
+  	 		    {
+        			 Socket socket=(Socket)obj; 
+        			 
+        			 HeartBeatRequest heartBeatRequest = new HeartBeatRequest(socket);
+    	 			 new Thread(heartBeatRequest).start();	 
+  	 		    }
+  	 		  
+        	}
+        	
+        	
         	        	
 		}
 		
@@ -395,7 +302,7 @@ public class DataTransactionService extends Service{
 			// TODO Auto-generated method stub
 			while(true)
 			{
-				executeCommand(mSocket,ConstUtils.FbeeControlCommand.RPCS_GET_DEVICES);
+				DataUtils.getInstance().executeCommand(mSocket,DataUtils.FbeeControlCommand.RPCS_GET_DEVICES);
 				SystemClock.sleep(40*1000);//40秒搜索一次设备
 				
 			}

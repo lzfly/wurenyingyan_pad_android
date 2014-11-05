@@ -7,10 +7,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.List;
 
 import com.wuren.datacenter.bean.DeviceInfoBean;
+import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
+import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.GatewayListener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,7 +28,7 @@ public class ServiceSocketMonitor implements Runnable {
 	private static Object S_SINGLE_RUN_LOCK = new Object();
 	private static boolean S_RUNNING = false;
 	
-	public static List<DeviceInfoBean> mListDevices=new ArrayList();
+	
 	private ByteArrayOutputStream m_ReadStream = new ByteArrayOutputStream();
 		
 	//Òª²Ù×÷µÄsocket
@@ -33,57 +37,16 @@ public class ServiceSocketMonitor implements Runnable {
 	
 	private Context mContext;
 	
+	GatewayBean mGate;
 	
 	
-	   private static int SRPC_CMD_ID_POS = 0;
-	   private static int SRPC_CMD_LEN_POS = 1;
-
-       //SRPC CMD ID's	
-       //define the outgoing RPSC command ID's
-	   private static final byte RPCS_NEW_ZLL_DEVICE = (byte)0x0001;
-	   private static final byte RPCS_DEV_ANNCE = (byte)0x0002;
-       private static final byte RPCS_SIMPLE_DESC = (byte)0x0003;
-       private static final byte RPCS_TEMP_READING = (byte)0x0004;
-       private static final byte RPCS_POWER_READING = (byte)0x0005;
-       private static final byte RPCS_PING = (byte)0x0006;
-       private static final byte RPCS_GET_DEV_STATE_RSP = (byte)0x0007;
-       private static final byte RPCS_GET_DEV_LEVEL_RSP = (byte)0x0008;
-       private static final byte RPCS_GET_DEV_HUE_RSP = (byte)0x0009;
-       private static final byte RPCS_GET_DEV_SAT_RSP = (byte)0x000a;
-       private static final byte RPCS_ADD_GROUP_RSP = (byte)0x000b;
-       private static final byte RPCS_GET_GROUP_RSP = (byte)0x000c;
-       private static final byte RPCS_ADD_SCENE_RSP = (byte)0x000d;
-       private static final byte RPCS_GET_SCENE_RSP = (byte)0x000e;
+	
 
 
-       //define incoming RPCS command ID's
-       private static final byte RPCS_GET_DEV_SP = (byte)0x70;
-       private static final byte RPCS_CLOSE = (byte)0x80;
-       private static final byte RPCS_GET_DEVICES = (byte)0x81;
-       private static final byte RPCS_SET_DEV_STATE = (byte)0x82;
-       private static final byte RPCS_SET_DEV_LEVEL = (byte)0x83;
-       private static final byte RPCS_SET_DEV_COLOR = (byte)0x84;
-       private static final byte RPCS_GET_DEV_STATE = (byte)0x85;
-       private static final byte RPCS_GET_DEV_LEVEL = (byte)0x86;
-       private static final byte RPCS_GET_DEV_HUE = (byte)0x87;
-       private static final byte RPCS_GET_DEV_SAT = (byte)0x88;
-       private static final byte RPCS_BIND_DEVICES = (byte)0x89;
-       private static final byte RPCS_GET_THERM_READING = (byte)0x8a;
-       private static final byte RPCS_GET_POWER_READING = (byte)0x8b;
-       private static final byte RPCS_DISCOVER_DEVICES = (byte)0x8c;
-       private static final byte RPCS_SEND_ZCL = (byte)0x8d;
-       private static final byte RPCS_GET_GROUPS = (byte)0x8e;
-       private static final byte RPCS_ADD_GROUP = (byte)0x8f;
-       private static final byte RPCS_GET_SCENES = (byte)0x90;
-       private static final byte RPCS_STORE_SCENE = (byte)0x91;
-       private static final byte RPCS_RECALL_SCENE = (byte)0x92;
-       private static final byte RPCS_IDENTIFY_DEVICE = (byte)0x93;
-       private static final byte RPCS_CHANGE_DEVICE_NAME = (byte)0x94;   
 
-       
 	
 	
-	public ServiceSocketMonitor(Socket socket,Context context)
+	public ServiceSocketMonitor(Context context,Socket socket,GatewayBean gate)
 	{
 		
 		Log.v("jiaojc","socket ip:"+socket.getInetAddress().getHostAddress());
@@ -92,6 +55,13 @@ public class ServiceSocketMonitor implements Runnable {
 		m_ReadStream = new ByteArrayOutputStream();
 		this.mContext=context;
 		
+		this.mGate=gate;
+	}
+	
+	private GatewayListener mGatewayListener;
+	public void setGatewayListener(GatewayListener gatewayListener)
+	{
+		this.mGatewayListener=gatewayListener;
 	}
 	
 
@@ -154,9 +124,6 @@ public class ServiceSocketMonitor implements Runnable {
 					                    {
 					                        bytesProcessed += rpcsProcessIncoming(receivedData, bytesProcessed);					                         
 					                    }
-										
-									    
-										 
 									}
 									
 									
@@ -245,11 +212,11 @@ public class ServiceSocketMonitor implements Runnable {
         int msgoldstart;
         msgoldstart = msgPtr;
        // Log.v("jiaojc",""+msg[msgPtr + SRPC_CMD_ID_POS]);
-        switch (msg[msgPtr + SRPC_CMD_ID_POS])
+        switch (msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS])
         {
          	
 
-            case RPCS_NEW_ZLL_DEVICE:
+            case DataUtils.FbeeControlCommand.RPCS_NEW_ZLL_DEVICE:
                 {
                     int profileId = 0, deviceId = 0, nwkAddr = 0;
                     char endPoint;
@@ -262,7 +229,7 @@ public class ServiceSocketMonitor implements Runnable {
 
                    
                     
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
                   
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -332,7 +299,8 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                         ieee[i] = msg[msgPtr++];
                     }
-                    
+                    String str_ieee_temp=DataUtils.bytes2HexString(ieee);
+                    Log.v("jiaojc","ieee:"+str_ieee_temp);
                     
                     if ((msgPtr - msgoldstart + 2) < msgLen)
                     {
@@ -356,10 +324,10 @@ public class ServiceSocketMonitor implements Runnable {
 
                     break;
                 }
-            case RPCS_ADD_GROUP_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_ADD_GROUP_RSP:
                 {
                     short groupId = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -388,10 +356,10 @@ public class ServiceSocketMonitor implements Runnable {
                     break;
                 }
 
-            case RPCS_GET_GROUP_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_GROUP_RSP:
                 {
                     short groupId = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -411,11 +379,11 @@ public class ServiceSocketMonitor implements Runnable {
                     break;
                 }
 
-            case RPCS_ADD_SCENE_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_ADD_SCENE_RSP:
                 {
                     short groupId = 0;
                     byte sceneId = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -447,11 +415,11 @@ public class ServiceSocketMonitor implements Runnable {
                     break;
                 }
 
-            case RPCS_GET_SCENE_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_SCENE_RSP:
                 {
                     short groupId = 0;
                     byte sceneId = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -473,12 +441,12 @@ public class ServiceSocketMonitor implements Runnable {
                     */
                     break;
                 }
-            case RPCS_GET_DEV_STATE_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_STATE_RSP:
                 {
                     short nwkAddr = 0;
                     byte endPoint = 0;
                     byte state = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -510,12 +478,12 @@ public class ServiceSocketMonitor implements Runnable {
                     }*/
                     break;
                 }
-            case RPCS_GET_DEV_LEVEL_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_LEVEL_RSP:
                 {
                     short nwkAddr = 0;
                     byte endPoint = 0;
                     byte level = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -547,12 +515,12 @@ public class ServiceSocketMonitor implements Runnable {
                     }*/
                     break;
                 }
-            case RPCS_GET_DEV_HUE_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_HUE_RSP:
                 {
                     short nwkAddr = 0;
                     byte endPoint = 0;
                     byte hue = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -584,12 +552,12 @@ public class ServiceSocketMonitor implements Runnable {
                     }*/
                     break;
                 }
-            case RPCS_GET_DEV_SAT_RSP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_SAT_RSP:
                 {
                     short nwkAddr = 0;
                     byte endPoint = 0;
                     byte sat = 0;
-                    msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+                    msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
 
                     //index passed len and cmd ID
                     msgPtr += 2;
@@ -621,9 +589,9 @@ public class ServiceSocketMonitor implements Runnable {
                     }*/
                     break;
                 }
-            case RPCS_GET_DEV_SP:
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_SP:
             {
-            	msgLen = msg[msgPtr + SRPC_CMD_LEN_POS] + 2;
+            	msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
             	//Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" received a device response.");
             }
             break;
@@ -639,29 +607,21 @@ public class ServiceSocketMonitor implements Runnable {
     }
 	
 	
-	private String bytes2HexString(byte[] b) {
-  	  String ret = "";
-  	  for (int i = 0; i < b.length; i++) {
-  	   String hex = Integer.toHexString(b[ i ] & 0xFF);
-  	   if (hex.length() == 1) {
-  	    hex = '0' + hex;
-  	   }
-  	   ret += hex.toUpperCase();
-  	  }
-  	  return ret;
-  }
+	
 	
 	private void newDevice(int profileId,int deviceId, int nwkAddr, char endPoint,byte[] ieee,
 			boolean bOnline,String deviceName, String deviceSN)
 	{
-		String strIEEE=bytes2HexString(ieee);
+		String strIEEE=DataUtils.bytes2HexString(ieee);
 		boolean bAdded=false;
 		
-		for(int i=0;i<mListDevices.size();i++)
+		for(int i=0;i<DataUtils.mListDevices.size();i++)
 		{
-			byte[]ieee_item=mListDevices.get(i).getIEEE();
+			byte[]ieee_item=DataUtils.mListDevices.get(i).getIEEE();
 			
-			String str_ieee_temp=bytes2HexString(ieee);
+			String str_ieee_temp=DataUtils.bytes2HexString(ieee_item);
+			
+			
 			if(str_ieee_temp.equals(strIEEE))
 			{
 				bAdded=true;
@@ -681,9 +641,11 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setIEEE(ieee);
 		 device.setOnlineStatus(bOnline);
 		 device.setName(deviceName);
+		 device.setIEEE_string_format(strIEEE);
 		 device.setSN(deviceSN);
+		 device.setGateway_SN(this.mGate.getSN());
 		 
-		 mListDevices.add(device);
+		 DataUtils.mListDevices.add(device);
 		 
 	}
 	
