@@ -43,6 +43,7 @@ public static final class FbeeControlCommand{
 	    public static final byte RPCS_GET_GROUP_RSP = (byte)0x000c;
 	    public static final byte RPCS_ADD_SCENE_RSP = (byte)0x000d;
 	    public static final byte RPCS_GET_SCENE_RSP = (byte)0x000e;
+	    public static final byte RPCS_GET_GATEDETAIL_RSP = (byte)0x15;
        
 		public static final byte RPCS_GET_DEV_SP = (byte)0x70;
 		public static final byte RPCS_CLOSE = (byte)0x80;
@@ -66,6 +67,10 @@ public static final class FbeeControlCommand{
 	    public static final byte RPCS_RECALL_SCENE = (byte)0x92;
 	    public static final byte RPCS_IDENTIFY_DEVICE = (byte)0x93;
 	    public static final byte RPCS_CHANGE_DEVICE_NAME = (byte)0x94;
+	    public static final byte RPCS_DELETE_DEVICE= (byte)0x95;
+	    
+	    public static final byte RPCS_GET_GATEDETAIL = (byte)0x9D;
+	    public static final byte RPCS_ALLOW_ADDDEVICES= (byte)0x9F;
 	    
 	    public static final byte RPCS_FACTORY_GATEWAY= (byte)0xA1;//Íø¹Ø¸´Î» 
 	    

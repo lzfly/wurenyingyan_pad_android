@@ -65,7 +65,10 @@ public class DeviceActivity extends BaseActivity {
 //					typeNameView.setText(res.getString(R.string.gate_IP_name)+gate.getIP());
 //					
 					TextView aliasNameView = (TextView)view.findViewById(R.id.device_alias_name);
-					aliasNameView.setText(Integer.toHexString(device.getShortAddr()).toUpperCase());
+					String strShortAddr=Integer.toHexString(device.getShortAddr()).toUpperCase();
+					if(strShortAddr.length()<4)
+						strShortAddr="0"+strShortAddr;
+					aliasNameView.setText(strShortAddr);
 				
 					
 //					TextView gate_sn_view = (TextView)view.findViewById(R.id.gate_sn);

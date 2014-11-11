@@ -11,9 +11,11 @@ import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.FebeeAPI;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -111,7 +113,7 @@ public class SearchGatewayThread extends Thread{
 		            	gate.setIP(strIPArray[1]);
 		            	
 		            	String strSNArray[]=strArray[1].split(":");
-		            	gate.setSN(strSNArray[1]);
+		            	gate.setSN(strSNArray[1].toUpperCase());
 		            	
 		            	
 		            	String str3=strSNArray[1].substring(0,2);
@@ -143,6 +145,8 @@ public class SearchGatewayThread extends Thread{
 		            		
 		            		//开始启动心跳监听进程开始监听是否与网关断网
 		            		startHeartBeatListen(gate);
+		            		//开始获得gate 详细数据
+		            		FebeeAPI.getInstance().getGateDetailInfo(gate.getSN());
 		            		
 		            		//开始启动定期轮询搜索与该网关相联的设备
 		            		startSearchDevice(gate);
@@ -166,6 +170,7 @@ public class SearchGatewayThread extends Thread{
 	      {
 	    	  Log.v(LOG_TAG,"Sorry,can not find gateway!");
 	      }
+	      if(mUdpSocket!=null)
 	      mUdpSocket.close();
     }
     

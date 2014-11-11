@@ -38,6 +38,13 @@ public class DeviceList {
 		S_DEVICES.put(ieee, device);
 	}
 	
+	public static void remove(DeviceInfoBean device)
+	{
+		String ieee = device.getIEEE_string_format();
+		S_DEVICES.remove(ieee);
+		
+	}
+	
 	public static DeviceInfoBean getDevice(String devIEEE)
 	{
 		if (exists(devIEEE))

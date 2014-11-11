@@ -12,6 +12,7 @@ import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.BaseActivity;
 import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.DeviceListener;
 import com.wuren.datacenter.util.FebeeAPI;
 import com.wuren.datacenter.widgets.MultiColumnAdapter;
 import com.wuren.datacenter.widgets.MultiColumnView;
@@ -156,6 +157,27 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 		public void onClick(View v) {
 			
 			Log.v("jiaojc","discovery device");
+			Object tagValue = v.getTag(R.string.tag_gate_discovery);
+			if (tagValue instanceof GatewayBean)
+			{
+				GatewayBean gate = (GatewayBean)tagValue;
+				
+				
+				
+				//获得网关详细信息测试
+//				 Intent in = new Intent( GatewayActivity.this, DataTransactionService.class);
+//				 in.putExtra("gateway_sn", gate.getSN());
+//				 Log.v("jiaojc","will set sn:"+gate.getSN());
+//				 in.setAction(DataTransactionService.REQUEST_GATEWAYDETAIL_ACTION);
+//				 GatewayActivity.this.startService(in);
+				
+				
+				//允许入网测试
+				FebeeAPI.getInstance().allowAddDevices(gate.getSN());
+				//
+	
+			
+			}
 
 		}
 		
@@ -172,10 +194,46 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 			{
 				GatewayBean gate = (GatewayBean)tagValue;
 				
-				FebeeAPI.getInstance().resetGate(gate.getSN(), false, null);
+				//只复位网关内存信息
+				//FebeeAPI.getInstance().resetGate(gate.getSN(), false, null);
+				//复位网络，真正恢复出厂
+//			FebeeAPI.getInstance().resetGate(gate.getSN(), true, null);
+				
+				//删除指定设备API测试				
+//				for(int i=0;i<DataUtils.mListDevices.size();i++)
+//				{
+//					DeviceInfoBean bean=DataUtils.mListDevices.get(i);
+//					if(bean.getGateway_SN().equals("112E0710"))
+//					{
+//						FebeeAPI.getInstance().deleteDevice(bean,deviceTestListener);
+//						break;
+//					}
+//				}
+				
+				//更改设备名测试
+//				for(int i=0;i<DataUtils.mListDevices.size();i++)
+//				{
+//					DeviceInfoBean bean=DataUtils.mListDevices.get(i);
+//					if(bean.getGateway_SN().equals("112E0710"))
+//					{
+//						FebeeAPI.getInstance().changeDeviceName(bean,"abc",deviceTestListener);
+//						break;
+//					}
+//				}
 			}
 			
 
+		}
+		
+	};
+	DeviceListener deviceTestListener=new DeviceListener(){
+
+		@Override
+		public void onTaskComplete() {
+			// TODO Auto-generated method stub
+			
+			Log.v("jiaojc","device listener onTaskComplete");
+			
 		}
 		
 	};

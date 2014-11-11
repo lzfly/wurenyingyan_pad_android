@@ -26,10 +26,12 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.FebeeAPI;
 
 import android.app.Service;
 import android.content.Context;
@@ -60,7 +62,7 @@ public class DataTransactionService extends Service{
 	public static final String SEARCH_HEART_BEAT_ACTION="com.wuren.datacenter.HEARTBEAT";
 	
 	
-	
+	public static final String REQUEST_GATEWAYDETAIL_ACTION="com.wuren.datacenter.REQUEST_GATEWAYDETAIL";
 	
 	
 	public static Hashtable mHtGateway_Socket_Table=new Hashtable();
@@ -236,6 +238,35 @@ public class DataTransactionService extends Service{
     	 			 new Thread(heartBeatRequest).start();	 
   	 		    }
         	}
+        	//Get gate detail info
+        	if ( strAction.equals(REQUEST_GATEWAYDETAIL_ACTION))
+        	{
+        		String gateway_sn=mIntent.getStringExtra("gateway_sn");
+        		
+        		GatewayBean gate=GatewayList.getGateway(gateway_sn);
+        		if(gate!=null)
+        		{
+        			String username=gate.getUsername();
+        			String password=gate.getPassword();
+    				
+        			if(username==null || username.length()==0)
+        			{
+        				FebeeAPI.getInstance().getGateDetailInfo(gateway_sn);
+        				SystemClock.sleep(3000);
+        				
+        				username=gate.getUsername();
+        				password=gate.getPassword();
+        				
+        				
+        			}
+        			    				
+    				Log.v("jiaojc","getway user:"+username+"\tpwd:"+password);
+
+        		}
+        		
+
+  	 		  
+        	}
 		}
 	}
 	
@@ -254,7 +285,7 @@ public class DataTransactionService extends Service{
 			// TODO Auto-generated method stub
 			while(true)
 			{
-				Log.v("jiaojc","heart beat:"+mSocket.getInetAddress().getHostAddress());
+			//	Log.v("jiaojc","heart beat:"+mSocket.getInetAddress().getHostAddress());
 				
 				try{
 	 				mSocket.sendUrgentData(0xFF);

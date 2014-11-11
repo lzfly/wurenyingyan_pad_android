@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import com.wuren.datacenter.List.DeviceList;
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
@@ -213,7 +214,7 @@ public class ServiceSocketMonitor implements Runnable {
         int msgLen;
         int msgoldstart;
         msgoldstart = msgPtr;
-       // Log.v("jiaojc",""+msg[msgPtr + SRPC_CMD_ID_POS]);
+        Log.v("jiaojc",""+mGate.getIP()+" rpcsProcessIncoming response header--"+msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS]);
         switch (msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS])
         {
          	
@@ -266,7 +267,7 @@ public class ServiceSocketMonitor implements Runnable {
                     }
                     
                     
-                    Log.v("jiaojc","deviceId:"+profileId+"\tHex:"+Integer.toHexString(deviceId));
+                    Log.v("jiaojc","deviceId:"+deviceId+"\tHex:"+Integer.toHexString(deviceId));
 
 
                     //index passed version
@@ -595,6 +596,89 @@ public class ServiceSocketMonitor implements Runnable {
             {
             	msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
             	//Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" received a device response.");
+            }
+            break;
+            case DataUtils.FbeeControlCommand.RPCS_GET_GATEDETAIL_RSP:
+            {
+            	msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
+            	
+            	msgPtr += 2;
+            	
+            	byte version[] =new byte[5];
+            	for (int i = 0; i < version.length; i++)
+                {
+            		version[i] = msg[msgPtr++];
+                }
+                String gate_version=new String(version);
+                Log.v("jiaojc","gate version:"+gate_version);
+                
+                byte snid[]=new byte[4];
+                for (int i = 0; i < snid.length; i++)
+                {
+                	snid[3-i] = msg[msgPtr++];
+                }
+                
+                Log.v("jiaojc","snid:"+snid[0]+"\t"+snid[1]+"\tsnid[2]:"+snid[2]+"\tsnid[3]:"+snid[3]);
+                
+                
+                String hexSn=DataUtils.bytes2HexString(snid);
+                
+                Log.v("jiaojc","hexSN:"+hexSn);
+                //username
+                byte user[]=new byte[20];
+                byte pwd[]=new byte[20];
+                
+                
+               
+                int userLenth=0;
+                for (int i = 0; i < user.length; i++)
+                {
+                	user[i] = msg[msgPtr++];
+                
+                }
+                
+                for (int i = 0; i < user.length; i++)
+                {
+                	if(user[i]==0)
+                		break;
+                	else
+                	{
+                		userLenth++;
+                	}
+                }
+                
+                int pwdLength=0;
+                
+                for (int i = 0; i < pwd.length; i++)
+                {
+                	pwd[i] = msg[msgPtr++];                
+                }
+                for (int i = 0; i < pwd.length; i++)
+                {
+                	if(pwd[i]==0)
+                		break;
+                	else
+                	{
+                		pwdLength++;
+                	}
+                }
+
+               Log.v("jiaojc","user:"+new String(user,0,userLenth)+"\tpwd:"+new String(pwd,0,pwdLength));
+               
+               
+               
+               GatewayBean gate=GatewayList.getGateway(hexSn);
+               if(gate!=null)
+               {
+            		gate.setUsername(new String(user,0,userLenth));
+       				gate.setPassword(new String(pwd,0,pwdLength));
+       				gate.setVersion(gate_version);
+               }
+	            
+               
+              
+                
+            	
             }
             break;
 
