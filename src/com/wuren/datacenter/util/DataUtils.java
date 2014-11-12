@@ -44,6 +44,7 @@ public static final class FbeeControlCommand{
 	    public static final byte RPCS_ADD_SCENE_RSP = (byte)0x000d;
 	    public static final byte RPCS_GET_SCENE_RSP = (byte)0x000e;
 	    public static final byte RPCS_GET_GATEDETAIL_RSP = (byte)0x15;
+	    public static final byte RPCS_GET_DEV_ColorTemperature_RSP = (byte)0x27;
        
 		public static final byte RPCS_GET_DEV_SP = (byte)0x70;
 		public static final byte RPCS_CLOSE = (byte)0x80;
@@ -72,7 +73,11 @@ public static final class FbeeControlCommand{
 	    public static final byte RPCS_GET_GATEDETAIL = (byte)0x9D;
 	    public static final byte RPCS_ALLOW_ADDDEVICES= (byte)0x9F;
 	    
+	    public static final byte RPCS_OPENORCLOSE_ONLINE_SWITCH= (byte)0xA0;//打开、关闭在线状态查询
 	    public static final byte RPCS_FACTORY_GATEWAY= (byte)0xA1;//网关复位 
+	    
+	    public static final byte RPCS_SET_DEV_ColorTemperature = (byte)0xA8;
+	    public static final byte RPCS_GET_DEV_ColorTemperature = (byte)0xA9;
 	    
 	    
 	}
@@ -198,6 +203,11 @@ public static final class FbeeControlCommand{
         bt1[0] = (byte)((j + 7) & 0xff);
         bt1[1] = (byte)(((j + 7) & 0xff00) / 0x100);
         
+//        byte[] bt1 = new byte[j + 6];
+//        bt1[0] = (byte)((j + 6) & 0xff);
+//        bt1[1] = (byte)(((j + 6) & 0xff00) / 0x100);
+        
+//        
        
         
         for (int i = 0; i < 4; i++)

@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;
+import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.BaseActivity;
@@ -21,6 +23,7 @@ import com.wuren.datacenter.widgets.MultiColumnView;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.app.ProgressDialog;
@@ -195,9 +198,11 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 				GatewayBean gate = (GatewayBean)tagValue;
 				
 				//只复位网关内存信息
-				//FebeeAPI.getInstance().resetGate(gate.getSN(), false, null);
+				//FebeeAPI.getInstance().resetGate(gate.getSN(), false, null);				
 				//复位网络，真正恢复出厂
 //			FebeeAPI.getInstance().resetGate(gate.getSN(), true, null);
+				
+///////////////////////////////////////////////////////////////////////////////////////////
 				
 				//删除指定设备API测试				
 //				for(int i=0;i<DataUtils.mListDevices.size();i++)
@@ -209,7 +214,8 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 //						break;
 //					}
 //				}
-				
+		
+///////////////////////////////////////////////////////////////////////////////////////////
 				//更改设备名测试
 //				for(int i=0;i<DataUtils.mListDevices.size();i++)
 //				{
@@ -220,6 +226,29 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 //						break;
 //					}
 //				}
+				
+/////////////////////////////////////////////////////////////////////////////////////////////				
+				
+//				
+//				//String device_ieee="2A273A04004B1200";
+//				
+//				//指定插座的开关状态测试
+//				String device_ieee="7C351105004B1200";
+//				
+//				DeviceInfoBean device=DeviceList.getDevice(device_ieee);
+//				
+//				if(device!=null)
+//				{
+//					FebeeAPI.getInstance().setDeviceStatus(device, 1, null);
+//					SystemClock.sleep(2000);
+//					FebeeAPI.getInstance().getDeviceStatus(device, null);
+//				}
+//				
+				
+///////////////////////////////////////////////////////////////////////////////////////////
+				
+				
+				FebeeAPI.getInstance().openOrCloseOnLineSwitch(gate.getSN(),0);
 			}
 			
 

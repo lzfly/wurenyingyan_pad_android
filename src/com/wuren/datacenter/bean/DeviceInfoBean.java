@@ -19,6 +19,7 @@ public class DeviceInfoBean {
 	
 	private char endPoint;//end point值
 	
+	
 	private int profileID;//profile id array
 		
 	private int clusterID;//cluster id
@@ -27,8 +28,57 @@ public class DeviceInfoBean {
 	
 	private String gateway_SN;
 	
+	private int status=0;// 开/关/停 1/0/2,红外没有开关状态值
 	
+	private int lightness=0;//亮度
+	
+	
+	private int hue=0; //色调
+	
+	private int saturation=0;//饱和度
+	
+	private int colorTemperature=0;//色温
 		
+	public int getColorTemperature() {
+		return colorTemperature;
+	}
+
+	public void setColorTemperature(int colorTemperature) {
+		this.colorTemperature = colorTemperature;
+	}
+
+	public int getHue() {
+		return hue;
+	}
+
+	public void setHue(int hue) {
+		this.hue = hue;
+	}
+
+	public int getSaturation() {
+		return saturation;
+	}
+
+	public void setSaturation(int saturation) {
+		this.saturation = saturation;
+	}
+
+	public int getLightness() {
+		return lightness;
+	}
+
+	public void setLightness(int lightness) {
+		this.lightness = lightness;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
 	public String getGateway_SN() {
 		return gateway_SN;
 	}
@@ -36,15 +86,15 @@ public class DeviceInfoBean {
 	public void setGateway_SN(String gateway_SN) {
 		this.gateway_SN = gateway_SN;
 	}
-
 	public String getDeviceType() {
 		return deviceType;
 	}
 
 	public void setDeviceType(int deviceType) {
-		this.deviceType = String.format("%#06x", deviceType);
+		//this.deviceType = String.format("%#06x", deviceType);
 		Log.d("wxm", "deviceType: " + this.deviceType);
 	}
+
 
 	public int getClusterID() {
 		return clusterID;
@@ -111,6 +161,7 @@ public class DeviceInfoBean {
 	public void setEndPoint(char endPoint) {
 		this.endPoint = endPoint;
 	}
+
 
 	public int getProfileID() {
 		return profileID;

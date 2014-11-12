@@ -16,6 +16,7 @@ import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.DeviceListener;
 import com.wuren.datacenter.util.GatewayListener;
 import com.wuren.datacenter.util.HttpUtils;
 
@@ -65,6 +66,12 @@ public class ServiceSocketMonitor implements Runnable {
 	public void setGatewayListener(GatewayListener gatewayListener)
 	{
 		this.mGatewayListener=gatewayListener;
+	}
+	
+	private DeviceListener mDeviceListener;
+	public void setDeviceListener(DeviceListener deviceListener)
+	{
+		this.mDeviceListener=deviceListener;
 	}
 	
 
@@ -248,7 +255,10 @@ public class ServiceSocketMonitor implements Runnable {
                     Log.v("jiaojc","shortAddress:"+nwkAddr+"\tHex:"+Integer.toHexString(nwkAddr));                    
                     
                     //Get the EndPoint
-                    endPoint = (char)msg[msgPtr++];
+                    byte byte_endpoint=msg[msgPtr++];
+                    endPoint = (char)byte_endpoint;
+                    
+                    Log.v("jiaojc","endPoint byteValue:"+byte_endpoint+"\tchar format:"+endPoint);
 
                     //Get the ProfileId
                     for (int i = 0; i < 2; i++, msgPtr++)
@@ -287,17 +297,21 @@ public class ServiceSocketMonitor implements Runnable {
                         Log.v("jiaojc","deviceName:"+deviceName);
                         
                     }
-
-                    //index passed status
+                      //index passed status
                     
                     //获得当前设备状态 0为不在线，其他值为在线
-                    byte online = msg[msgPtr++];
-                    Log.d("wxm", "device is online: " + online);
-                    if(online!=0)
+                    if(msg[msgPtr++]!=0)
+                    {
                     	bOnline=true;
+                    }
+                    else
+                    {
+                    	bOnline=false;
+                    }
                     
-                  //  msgPtr++;
-
+                    Log.v("jiaojc","device "+Integer.toHexString(nwkAddr)+" online value:"+bOnline);
+                    
+             
                     //copy IEEE Addr
                     for (int i = 0; i < 8; i++)
                     {
@@ -468,18 +482,21 @@ public class ServiceSocketMonitor implements Runnable {
 
                     //Get the state
                     state = (byte)msg[msgPtr++];
-
-                    /*
-                    List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
-                    //find the device
-                    for (int i = 0; i < devList.size(); i++)
+                    
+                    DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                    if(device!=null)
+                    	device.setStatus(state);
+                    
+                    if(this.mDeviceListener!=null)
                     {
-                        if ((((short)devList.get(i).NetworkAddr) == nwkAddr) && (devList.get(i).EndPoint == endPoint))
-                        {
-                            devList.get(i).setCurrentState(state);
-                            break;
-                        }
-                    }*/
+                    	mDeviceListener.onTaskComplete();
+                    }
+                    
+                    Log.v("jiaojc","device status:"+state+"\tdevice online value:"+device.getOnlineStatus());
+                    
+                    
+
+                  
                     break;
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_LEVEL_RSP:
@@ -505,6 +522,17 @@ public class ServiceSocketMonitor implements Runnable {
 
                     //Get the state
                     level = (byte)msg[msgPtr++];
+                    
+                    
+                    DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                    
+                    if(device!=null)
+                    	device.setLightness(level);
+                    
+                    if(this.mDeviceListener!=null)
+                    {
+                    	mDeviceListener.onTaskComplete();
+                    }
 
                     /*
                     List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
@@ -542,6 +570,16 @@ public class ServiceSocketMonitor implements Runnable {
 
                     //Get the state
                     hue = (byte)msg[msgPtr++];
+                    
+                    DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                    
+                    if(device!=null)
+                    	device.setHue(hue);
+                    
+                    if(this.mDeviceListener!=null)
+                    {
+                    	mDeviceListener.onTaskComplete();
+                    }
 
                     /*
                     List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
@@ -579,6 +617,17 @@ public class ServiceSocketMonitor implements Runnable {
 
                     //Get the state
                     sat = (byte)msg[msgPtr++];
+                    
+                    
+                    DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                    
+                    if(device!=null)
+                    	device.setSaturation(sat);
+                    
+                    if(this.mDeviceListener!=null)
+                    {
+                    	mDeviceListener.onTaskComplete();
+                    }
                     /*
 
                     List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
@@ -597,6 +646,47 @@ public class ServiceSocketMonitor implements Runnable {
             {
             	msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
             	//Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" received a device response.");
+            }
+            break;
+            case DataUtils.FbeeControlCommand.RPCS_GET_DEV_ColorTemperature_RSP:
+            {
+            	  short nwkAddr = 0;
+                  byte endPoint = 0;
+                  int colorTemperature = 0;
+                  msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
+
+                  //index passed len and cmd ID
+                  msgPtr += 2;
+
+                  //Get the nwkAddr
+                  for (int i = 0; i < 2; i++, msgPtr++)
+                  {
+                      //java does not support unsigned so use a bigger container to avoid conversion issues
+                      int nwkAddrTemp = (msg[msgPtr] & 0xff);
+                      nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                  }
+
+                  //Get the EP
+                  endPoint = (byte)msg[msgPtr++];
+
+                  //Get the colorTemperature                  
+                  for (int i = 0; i < 2; i++, msgPtr++)
+                  {
+                      int colorTemperatureTemp = (msg[msgPtr] & 0xff);
+                      colorTemperature += (short)(colorTemperatureTemp << (8 * i));
+                  }
+                 
+                  
+                  
+                  DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                  
+                  if(device!=null)
+                  	device.setColorTemperature(colorTemperature);
+                  
+                  if(this.mDeviceListener!=null)
+                  {
+                  		mDeviceListener.onTaskComplete();
+                  }
             }
             break;
             case DataUtils.FbeeControlCommand.RPCS_GET_GATEDETAIL_RSP:
@@ -731,9 +821,7 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setSN(deviceSN);
 		 device.setGateway_SN(this.mGate.getSN());
 		 
-		 Log.d("wxm", device.getIEEE_string_format() + "  online: " + device.getOnlineStatus());
-		 
-		 HttpUtils.syncDevice(device, true, device.getOnlineStatus(), null);
+		 HttpUtils.syncDevice(device, true, true, null);
 		 
 		 DeviceList.put(device);
 		 

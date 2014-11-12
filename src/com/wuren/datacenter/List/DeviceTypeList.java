@@ -9,7 +9,6 @@ public class DeviceTypeList {
 	private static Hashtable<String, DeviceTypeInfo> S_DEVICE_TYPES = new Hashtable<String, DeviceTypeInfo>();
 	
 	private static Object S_LOCK = new Object();
-	
 	public static void clear()
 	{
 		S_DEVICE_TYPES.clear();
@@ -30,7 +29,7 @@ public class DeviceTypeList {
 			{
 				if (!exists(identification))
 				{
-					S_DEVICE_TYPES.put(identification, deviceType);
+			S_DEVICE_TYPES.put(identification, deviceType);
 				}
 			}
 		}
@@ -43,7 +42,7 @@ public class DeviceTypeList {
 		String identification = deviceType.getIdentification();
 		synchronized (S_LOCK)
 		{
-			S_DEVICE_TYPES.put(identification, deviceType);
+		S_DEVICE_TYPES.put(identification, deviceType);
 		}
 	}
 	
