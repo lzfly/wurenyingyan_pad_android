@@ -10,11 +10,13 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 import com.wuren.datacenter.util.GatewayListener;
+import com.wuren.datacenter.util.HttpUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -613,24 +615,23 @@ public class ServiceSocketMonitor implements Runnable {
 			boolean bOnline,String deviceName, String deviceSN)
 	{
 		String strIEEE=DataUtils.bytes2HexString(ieee);
-		boolean bAdded=false;
-		
-		for(int i=0;i<DataUtils.mListDevices.size();i++)
-		{
-			byte[]ieee_item=DataUtils.mListDevices.get(i).getIEEE();
-			
-			String str_ieee_temp=DataUtils.bytes2HexString(ieee_item);
-			
-			
-			if(str_ieee_temp.equals(strIEEE))
-			{
-				bAdded=true;
-				break;
-			}
-		}
-		
-		if(bAdded)
-			return;
+//		boolean bAdded=false;
+//		
+//		for(int i=0;i<DataUtils.mListDevices.size();i++)
+//		{
+//			byte[]ieee_item=DataUtils.mListDevices.get(i).getIEEE();
+//			
+//			String str_ieee_temp=DataUtils.bytes2HexString(ieee_item);
+//			
+//			if(str_ieee_temp.equals(strIEEE))
+//			{
+//				bAdded=true;
+//				break;
+//			}
+//		}
+//		
+//		if(bAdded)
+//			return;
 		
 		 DeviceInfoBean device=new DeviceInfoBean();
 		 
@@ -645,7 +646,11 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setSN(deviceSN);
 		 device.setGateway_SN(this.mGate.getSN());
 		 
-		 DataUtils.mListDevices.add(device);
+		 HttpUtils.syncDevice(device, true, true, null);
+		 
+		 DeviceList.put(device);
+		 
+//		 DataUtils.mListDevices.add(device);
 		 
 	}
 	

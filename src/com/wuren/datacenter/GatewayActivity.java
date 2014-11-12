@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.BaseActivity;
@@ -217,10 +218,11 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
             	            	
                 handler.postDelayed(this, TIME);
                 
-                List<GatewayBean> new_gates;
-                for(int i=0;i<DataUtils.mListGateway.size();i++)
+                List<GatewayBean> new_gates = new ArrayList<GatewayBean>();
+                List<GatewayBean> currList = GatewayList.getGatewayList();
+                for(int i = 0; i < currList.size(); i++)
                 {
-                	GatewayBean item=DataUtils.mListGateway.get(i);
+                	GatewayBean item = currList.get(i);
                 	boolean haved=false;
                 	for (int j = 0; j < m_DeviceAdapter.getCount(); j++)
             		{
@@ -237,19 +239,19 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
                 	
                 	if (!haved)
             		{
-            			m_DeviceAdapter.add(item);
+                		new_gates.add(item);
             		}
-                	
-                	
                 }
-                
+				if (new_gates.size() > 0)
+				{
+					m_DeviceAdapter.add(new_gates.toArray());
+				}
+				
                 if (m_DeviceAdapter.getCount() > 0)
 				{
 					m_ReceivingContainer.setVisibility(View.GONE);
 					m_ViewContainer.setVisibility(View.VISIBLE);
 				}
-               
-                
             } catch (Exception e) {  
                 // TODO Auto-generated catch block  
                 e.printStackTrace();  
@@ -265,7 +267,7 @@ View.OnClickListener discorveryClickListener = new View.OnClickListener() {
 			@Override
 			public void run() {
 				
-				List<GatewayBean> gates=DataUtils.mListGateway;
+				List<GatewayBean> gates = GatewayList.getGatewayList();
 				if (gates!=null && gates.size() > 0)
 				{
 					m_DeviceAdapter.add(gates.toArray());

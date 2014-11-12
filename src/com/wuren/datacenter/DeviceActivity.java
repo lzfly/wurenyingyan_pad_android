@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import com.wuren.datacenter.List.DeviceList;
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
@@ -143,7 +145,7 @@ public class DeviceActivity extends BaseActivity {
 		Intent intent=this.getIntent();
 		String gateway_sn=intent.getStringExtra("gateway_sn");
 		
-		mGate=DataUtils.getInstance().getGate(gateway_sn);
+		mGate = GatewayList.getGateway(gateway_sn);
 		
 		initDevice();
 		
@@ -160,10 +162,11 @@ public class DeviceActivity extends BaseActivity {
             	            	
                 handler.postDelayed(this, TIME);
                 
-                List<DeviceInfoBean> new_devices;
-                for(int i=0;i<DataUtils.mListDevices.size();i++)
+                List<DeviceInfoBean> new_devices = new ArrayList<DeviceInfoBean>();
+                List<DeviceInfoBean> currList = DeviceList.getDeviceList();
+                for(int i = 0; i < currList.size(); i++)
                 {
-                	DeviceInfoBean item=DataUtils.mListDevices.get(i);
+                	DeviceInfoBean item = currList.get(i);
                 	boolean haved=false;
                 	for (int j = 0; j < m_DeviceAdapter.getCount(); j++)
             		{
@@ -181,11 +184,13 @@ public class DeviceActivity extends BaseActivity {
                 	if (!haved)
             		{
                 		if(item.getGateway_SN().equals(mGate.getSN()))
-                			m_DeviceAdapter.add(item);
+                			new_devices.add(item);
             		}
-                	
-                	
                 }
+				if (new_devices.size() > 0)
+				{
+					m_DeviceAdapter.add(new_devices.toArray());
+				}
                 
                 if (m_DeviceAdapter.getCount() > 0)
 				{
@@ -209,16 +214,15 @@ public class DeviceActivity extends BaseActivity {
 			@Override
 			public void run() {
 				
-				List<DeviceInfoBean> devices=new ArrayList();
-				
-				for(int i=0;i<DataUtils.mListDevices.size();i++)
+				List<DeviceInfoBean> devices = new ArrayList<DeviceInfoBean>();
+				List<DeviceInfoBean> currList = DeviceList.getDeviceList();
+				for(int i = 0; i < currList.size(); i++)
 				{
-					DeviceInfoBean temp=DataUtils.mListDevices.get(i);
+					DeviceInfoBean temp = currList.get(i);
 					if(temp.getGateway_SN().equals(mGate.getSN()))
 					{
 						devices.add(temp);
 					}
-					
 				}
 				
 				if (devices!=null && devices.size() > 0)

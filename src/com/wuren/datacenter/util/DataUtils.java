@@ -10,6 +10,7 @@ import java.util.List;
 
 import android.util.Log;
 
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 
@@ -100,28 +101,27 @@ public static final class FbeeControlCommand{
 	  }
 	
 	
-	public static List<GatewayBean> mListGateway=new ArrayList();
-	
-	public static List<DeviceInfoBean> mListDevices=new ArrayList();
-	
+//	public static List<GatewayBean> mListGateway=new ArrayList();
+//	
+//	public static List<DeviceInfoBean> mListDevices=new ArrayList();
 	
 	public static Hashtable mHtGatewayReceive_Socket_Thread=new Hashtable();
 	
 	
 	
-	//通过gateway sn 获得gate对象
-	public GatewayBean getGate(String gateway_sn)
-	{
-		if(gateway_sn==null)
-			return null;
-		for(int i=0;i<mListGateway.size();i++)
-		{
-			GatewayBean temp=mListGateway.get(i);
-			if(temp.getSN().equals(gateway_sn))
-				return temp;
-		}
-		return null;
-	}
+//	//通过gateway sn 获得gate对象
+//	public GatewayBean getGate(String gateway_sn)
+//	{
+//		if(gateway_sn==null)
+//			return null;
+//		for(int i=0;i<mListGateway.size();i++)
+//		{
+//			GatewayBean temp=mListGateway.get(i);
+//			if(temp.getSN().equals(gateway_sn))
+//				return temp;
+//		}
+//		return null;
+//	}
 	
 	public void executeCommand(Socket socket,int mControlType)
 	{
@@ -169,16 +169,21 @@ public static final class FbeeControlCommand{
 		//获得SN array
 		String ip=socket.getInetAddress().getHostAddress();
 		byte[] sn=null;
-		for(int i=0;i<mListGateway.size();i++)
+		GatewayBean gateway = GatewayList.findByIP(ip);
+		if (gateway != null)
 		{
-			String temp=mListGateway.get(i).getIP();
-			
-			if(temp.equalsIgnoreCase(ip))
-			{
-				sn=mListGateway.get(i).getSNArray();
-				break;
-			}
+			sn = gateway.getSNArray();
 		}
+//		for(int i=0;i<mListGateway.size();i++)
+//		{
+//			String temp=mListGateway.get(i).getIP();
+//			
+//			if(temp.equalsIgnoreCase(ip))
+//			{
+//				sn=mListGateway.get(i).getSNArray();
+//				break;
+//			}
+//		}
 		
 		if(sn==null)
 			return null;

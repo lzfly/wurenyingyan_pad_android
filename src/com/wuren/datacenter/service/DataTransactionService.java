@@ -65,7 +65,6 @@ public class DataTransactionService extends Service{
 	
 	public static Hashtable mHtGateway_Socket_Table=new Hashtable();
 	
-	
 	public static Handler mHandler;
 	
 	
@@ -211,11 +210,8 @@ public class DataTransactionService extends Service{
         		processSearchGateway();        		
 	   		}
         	
-        	
-        	
         	if ( strAction.equals(SEARCH_DEVICES_ACTION))
 	   		{
-
         	  String gateway_sn=mIntent.getStringExtra("gateway_sn");
 	 		  Object obj=mHtGateway_Socket_Table.get(gateway_sn);
 	 		  
@@ -223,9 +219,8 @@ public class DataTransactionService extends Service{
 	 		  {
 	 			 Socket socket=(Socket)obj;  
 	 			 SearchDeviceRequest searchDeviceRequest = new SearchDeviceRequest(socket);
-	 			 new Thread(searchDeviceRequest).start();	 			 
+	 			 new Thread(searchDeviceRequest).start();
 	 		  }
-        		
 	   		}
         	
         	//启动心跳监听网关是否断连
@@ -240,19 +235,9 @@ public class DataTransactionService extends Service{
         			 HeartBeatRequest heartBeatRequest = new HeartBeatRequest(socket);
     	 			 new Thread(heartBeatRequest).start();	 
   	 		    }
-  	 		  
         	}
-        	
-        	
-        	        	
 		}
-		
-		
-		
-		
-		
 	}
-	
 	
 	private class HeartBeatRequest implements Runnable
 	{

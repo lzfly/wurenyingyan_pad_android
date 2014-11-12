@@ -6,22 +6,18 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
-
-
 public class SearchGatewayThread extends Thread{
-	
 	
 	private static final String LOG_TAG = "SearchGatewayThread";
 	  
@@ -36,7 +32,6 @@ public class SearchGatewayThread extends Thread{
    
     private Context mContext;
     public SearchGatewayThread( Context context) {  
-    	  
     	this.mContext=context;
     }  
     
@@ -53,25 +48,6 @@ public class SearchGatewayThread extends Thread{
 		
     } 
     
-    
-    private boolean isExist(GatewayBean gate)
-    {
-    	if(DataUtils.mListGateway==null)
-    		return false;
-    	
-    	boolean b=false;
-    	for(int i=0;i<DataUtils.mListGateway.size();i++)
-    	{    		
-    		GatewayBean temp=DataUtils.mListGateway.get(i);
-    		if(temp.getIP().equalsIgnoreCase(gate.getIP()))
-    		{
-    			b=true;
-    			break;
-    		}
-    	}
-    	return b;
-    }
-     
     private void searchFebee(int gatewayType)
     {
     	String mDataString=ConstUtils.S_SEARCH_GATEWAY_COMMAND;
@@ -156,9 +132,9 @@ public class SearchGatewayThread extends Thread{
 		            	
 		            	Log.v("jiaojc","IP:"+gate.getIP()+"\tSN:"+gate.getSN());
 		            	
-		            	if(!isExist(gate))
+		            	if(!GatewayList.exists(gate.getSN()))
 		            	{
-		            		DataUtils.mListGateway.add(gate);
+		            		GatewayList.add(gate);
 		            		//开始启动监听线程 开始监听该gateway数据
 		            		beginListenGateway(gate);
 		            		

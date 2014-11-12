@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 
 import android.util.Log;
 
+import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.service.ServiceSocketMonitor;
@@ -37,7 +38,7 @@ private static FebeeAPI mInstance;
 	{
 		Log.v("jiaojc","0000000");
 		//»ñµÃgate receive socket
-		GatewayBean gate=DataUtils.getInstance().getGate(gateway_sn);
+		GatewayBean gate = GatewayList.getGateway(gateway_sn);
 		if(gate==null)
 			return;
 		Object obj=DataTransactionService.mHtGateway_Socket_Table.get(gateway_sn);
