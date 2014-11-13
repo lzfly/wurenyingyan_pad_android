@@ -1,5 +1,7 @@
 package com.wuren.datacenter.bean;
 
+import android.util.Log;
+
 public class DeviceInfoBean {
 	
 	private String name; //device name
@@ -17,13 +19,11 @@ public class DeviceInfoBean {
 	
 	private char endPoint;//end pointֵ
 	
-	private int deviceID;//device id array
-	
 	private int profileID;//profile id array
 		
 	private int clusterID;//cluster id
 	
-	private int deviceType;
+	private String deviceType;
 	
 	private String gateway_SN;
 	
@@ -37,12 +37,13 @@ public class DeviceInfoBean {
 		this.gateway_SN = gateway_SN;
 	}
 
-	public int getDeviceType() {
+	public String getDeviceType() {
 		return deviceType;
 	}
 
 	public void setDeviceType(int deviceType) {
-		this.deviceType = deviceType;
+		this.deviceType = String.format("%#06x", deviceType);
+		Log.d("wxm", "deviceType: " + this.deviceType);
 	}
 
 	public int getClusterID() {
@@ -109,14 +110,6 @@ public class DeviceInfoBean {
 
 	public void setEndPoint(char endPoint) {
 		this.endPoint = endPoint;
-	}
-
-	public int getDeviceID() {
-		return deviceID;
-	}
-
-	public void setDeviceID(int deviceID) {
-		this.deviceID = deviceID;
 	}
 
 	public int getProfileID() {

@@ -7,7 +7,7 @@ public class ConstUtils {
 	public static int S_HTTP_REQUEST_RETRY_COUNT = 2;	//服务器请求次数
 	public static int S_HTTP_REQUEST_TIMEOUT = 1000 * 20; //服务器请求超时时间	
 
-	public static String S_NET_URL="http://192.168.1.102";
+	public static String S_NET_URL="http://192.168.1.101";
 	public static String S_API_URL = S_NET_URL+":"+"8007";
 	
 	public static String S_INIT_URL = S_API_URL + "/smartcenter/init";				//智能主机初始化接口

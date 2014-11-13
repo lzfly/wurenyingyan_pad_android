@@ -287,12 +287,13 @@ public class ServiceSocketMonitor implements Runnable {
                         Log.v("jiaojc","deviceName:"+deviceName);
                         
                     }
-                    msgPtr += nameSize;
 
                     //index passed status
                     
                     //获得当前设备状态 0为不在线，其他值为在线
-                    if(msg[msgPtr++]!=0)
+                    byte online = msg[msgPtr++];
+                    Log.d("wxm", "device is online: " + online);
+                    if(online!=0)
                     	bOnline=true;
                     
                   //  msgPtr++;
@@ -720,7 +721,7 @@ public class ServiceSocketMonitor implements Runnable {
 		 DeviceInfoBean device=new DeviceInfoBean();
 		 
 		 device.setProfileID(profileId);
-		 device.setDeviceID(deviceId);
+		 device.setDeviceType(deviceId);
 		 device.setShortAddr(nwkAddr);
 		 device.setEndPoint(endPoint);
 		 device.setIEEE(ieee);
@@ -730,7 +731,9 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setSN(deviceSN);
 		 device.setGateway_SN(this.mGate.getSN());
 		 
-		 HttpUtils.syncDevice(device, true, true, null);
+		 Log.d("wxm", device.getIEEE_string_format() + "  online: " + device.getOnlineStatus());
+		 
+		 HttpUtils.syncDevice(device, true, device.getOnlineStatus(), null);
 		 
 		 DeviceList.put(device);
 		 

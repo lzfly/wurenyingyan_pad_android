@@ -8,6 +8,8 @@ public class DeviceTypeList {
 
 	private static Hashtable<String, DeviceTypeInfo> S_DEVICE_TYPES = new Hashtable<String, DeviceTypeInfo>();
 	
+	private static Object S_LOCK = new Object();
+	
 	public static void clear()
 	{
 		S_DEVICE_TYPES.clear();
@@ -24,7 +26,13 @@ public class DeviceTypeList {
 		String identification = deviceType.getIdentification();
 		if (!exists(identification))
 		{
-			S_DEVICE_TYPES.put(identification, deviceType);
+			synchronized (S_LOCK)
+			{
+				if (!exists(identification))
+				{
+					S_DEVICE_TYPES.put(identification, deviceType);
+				}
+			}
 		}
 		return false;
 	}
@@ -33,7 +41,10 @@ public class DeviceTypeList {
 	public static void put(DeviceTypeInfo deviceType)
 	{
 		String identification = deviceType.getIdentification();
-		S_DEVICE_TYPES.put(identification, deviceType);
+		synchronized (S_LOCK)
+		{
+			S_DEVICE_TYPES.put(identification, deviceType);
+		}
 	}
 	
 	public static DeviceTypeInfo getDeviceType(String identification)

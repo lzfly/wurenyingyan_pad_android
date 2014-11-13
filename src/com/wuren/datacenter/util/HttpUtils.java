@@ -220,8 +220,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("device_sn", device.getIEEE_string_format());
-//		params.put("type_code", device.getDeviceType());
-		params.put("type_code", "hongwai");
+		params.put("type_code", device.getDeviceType());
 		params.put("name", devName);
 		params.put("is_open", isOpen ? "1" : "0");
 		params.put("is_online", isOnline ? "1" : "0");

@@ -10,6 +10,8 @@ public class DeviceList {
 
 	private static Hashtable<String, DeviceInfoBean> S_DEVICES = new Hashtable<String, DeviceInfoBean>();
 	
+	private static Object S_LOCK = new Object();
+	
 	public static void clear()
 	{
 		S_DEVICES.clear();
@@ -26,7 +28,13 @@ public class DeviceList {
 		String ieee = device.getIEEE_string_format();
 		if (!exists(ieee))
 		{
-			S_DEVICES.put(ieee, device);
+			synchronized (S_LOCK)
+			{
+				if (!exists(ieee))
+				{
+					S_DEVICES.put(ieee, device);
+				}
+			}
 		}
 		return false;
 	}
@@ -35,14 +43,19 @@ public class DeviceList {
 	public static void put(DeviceInfoBean device)
 	{
 		String ieee = device.getIEEE_string_format();
-		S_DEVICES.put(ieee, device);
+		synchronized (S_LOCK)
+		{
+			S_DEVICES.put(ieee, device);
+		}
 	}
 	
 	public static void remove(DeviceInfoBean device)
 	{
 		String ieee = device.getIEEE_string_format();
-		S_DEVICES.remove(ieee);
-		
+		synchronized (S_LOCK)
+		{
+			S_DEVICES.remove(ieee);
+		}
 	}
 	
 	public static DeviceInfoBean getDevice(String devIEEE)
@@ -57,7 +70,10 @@ public class DeviceList {
 	public static List<DeviceInfoBean> getDeviceList()
 	{
 		List<DeviceInfoBean> result = new ArrayList<DeviceInfoBean>();
-		result.addAll(S_DEVICES.values());
+		synchronized (S_LOCK)
+		{
+			result.addAll(S_DEVICES.values());
+		}
 		return result;
 	}
 
