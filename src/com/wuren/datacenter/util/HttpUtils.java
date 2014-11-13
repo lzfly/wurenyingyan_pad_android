@@ -220,8 +220,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("device_sn", device.getIEEE_string_format());
-//		params.put("type_code", device.getDeviceType());
-		params.put("type_code", "hongwai");
+		params.put("type_code", device.getDeviceType());
 		params.put("name", devName);
 		params.put("is_open", isOpen ? "1" : "0");
 		params.put("is_online", isOnline ? "1" : "0");
@@ -276,15 +275,18 @@ public class HttpUtils {
 	}
 	
 	//提交设备实时数据（报警，温/湿度，颜色，亮度等等）
-	public static void postDeviceData(final HttpResponseListener callback)
+	public static void postDeviceData(String devSN, String msg, String type, final HttpResponseListener callback)
 	{
+		String url = ConstUtils.S_POST_DATA_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		
 		FinalHttp fh = getFinalHttp();
 		
 		AjaxParams params = new AjaxParams();
-		params.put("device_sn", "");
-		//TODO 其他数据		
+		params.put("device_sn", devSN);
+		params.put("message", msg);
+		params.put("type", type);
 		
-		fh.post(ConstUtils.S_POST_DATA_URL,  params, new AjaxCallBack<String>() {
+		fh.post(url,  params, new AjaxCallBack<String>() {
 
 			@Override
 			public void onStart() {

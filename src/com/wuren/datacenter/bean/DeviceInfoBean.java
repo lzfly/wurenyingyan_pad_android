@@ -1,6 +1,6 @@
 package com.wuren.datacenter.bean;
 
-import android.util.Log;
+import java.util.Date;
 
 public class DeviceInfoBean {
 	
@@ -18,7 +18,6 @@ public class DeviceInfoBean {
 	private int shortAddr;//短地址
 	
 	private char endPoint;//end point值
-	
 	
 	private int profileID;//profile id array
 		
@@ -38,6 +37,28 @@ public class DeviceInfoBean {
 	private int saturation=0;//饱和度
 	
 	private int colorTemperature=0;//色温
+	private boolean isOnline = false;
+	private Date heartTime = new Date();
+	
+	public boolean isOnline()
+	{
+		return isOnline;
+	}
+	
+	public void setIsOnline(boolean online)
+	{
+		isOnline = online;
+	}
+	
+	public Date getHeartTime()
+	{
+		return heartTime;
+	}
+	
+	public void setHeartTime(Date time)
+	{
+		heartTime = time;
+	}
 		
 	public int getColorTemperature() {
 		return colorTemperature;
@@ -86,15 +107,14 @@ public class DeviceInfoBean {
 	public void setGateway_SN(String gateway_SN) {
 		this.gateway_SN = gateway_SN;
 	}
+
 	public String getDeviceType() {
 		return deviceType;
 	}
 
 	public void setDeviceType(int deviceType) {
-		//this.deviceType = String.format("%#06x", deviceType);
-		Log.d("wxm", "deviceType: " + this.deviceType);
+		this.deviceType = String.format("%#06x", deviceType);
 	}
-
 
 	public int getClusterID() {
 		return clusterID;
@@ -161,7 +181,6 @@ public class DeviceInfoBean {
 	public void setEndPoint(char endPoint) {
 		this.endPoint = endPoint;
 	}
-
 
 	public int getProfileID() {
 		return profileID;

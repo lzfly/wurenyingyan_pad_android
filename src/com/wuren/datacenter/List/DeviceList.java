@@ -1,7 +1,6 @@
 package com.wuren.datacenter.List;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import com.wuren.datacenter.bean.DeviceInfoBean;
 public class DeviceList {
 
 	private static Hashtable<String, DeviceInfoBean> S_DEVICES = new Hashtable<String, DeviceInfoBean>();
+	
 	private static Object S_LOCK = new Object();
 	
 	public static void clear()
@@ -45,7 +45,13 @@ public class DeviceList {
 		String ieee = device.getIEEE_string_format();
 		synchronized (S_LOCK)
 		{
-		S_DEVICES.put(ieee, device);
+			if (S_DEVICES.containsKey(ieee))
+			{
+				DeviceInfoBean currDevice = S_DEVICES.get(ieee);
+				device.setIsOnline(currDevice.isOnline());
+				device.setHeartTime(currDevice.getHeartTime());
+			}
+			S_DEVICES.put(ieee, device);
 		}
 	}
 	
@@ -54,8 +60,21 @@ public class DeviceList {
 		String ieee = device.getIEEE_string_format();
 		synchronized (S_LOCK)
 		{
-		S_DEVICES.remove(ieee);
+			S_DEVICES.remove(ieee);
 		}
+	}
+	
+	public static DeviceInfoBean getDevice(int shortAddr)
+	{
+		List<DeviceInfoBean> allDevices = getDeviceList();
+		for (DeviceInfoBean device : allDevices)
+		{
+			if (device.getShortAddr() == shortAddr)
+			{
+				return device;
+			}
+		}
+		return null;
 	}
 	
 	public static DeviceInfoBean getDevice(String devIEEE)
@@ -65,19 +84,6 @@ public class DeviceList {
 			return S_DEVICES.get(devIEEE);
 		}
 		return null;
-	}
-	
-	public static DeviceInfoBean getDevice(int shortAddr)
-	{
-		Enumeration e1 = S_DEVICES.elements();
-		while (e1.hasMoreElements()) {
-			
-			DeviceInfoBean bean=(DeviceInfoBean)e1.nextElement();
-			if(bean.getShortAddr()==shortAddr)
-				return bean;		
-		}
-		return null;
-		
 	}
 
 	public static List<DeviceInfoBean> getDeviceList()

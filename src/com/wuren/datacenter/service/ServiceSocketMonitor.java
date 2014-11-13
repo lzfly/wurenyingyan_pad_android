@@ -14,11 +14,14 @@ import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
+import com.wuren.datacenter.devicehandler.InvadeDeviceHandler;
+import com.wuren.datacenter.util.CommonUtils;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 import com.wuren.datacenter.util.DeviceListener;
 import com.wuren.datacenter.util.GatewayListener;
 import com.wuren.datacenter.util.HttpUtils;
+import com.wuren.datacenter.util.CommonUtils.DateFormatType;
 
 import android.content.Context;
 import android.content.Intent;
@@ -127,7 +130,8 @@ public class ServiceSocketMonitor implements Runnable {
 											
 										}
 									    Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" receive msg:"+msgs+"\n");
-									    
+									    Log.d("wxm", "received data: " + msgs);
+
 									    int bytesRead = receivedData.length;
 					                    int bytesProcessed = 0;
 					                    while (bytesRead > bytesProcessed)
@@ -135,8 +139,6 @@ public class ServiceSocketMonitor implements Runnable {
 					                        bytesProcessed += rpcsProcessIncoming(receivedData, bytesProcessed);					                         
 					                    }
 									}
-									
-									
 								} 
 								catch (Exception e) 
 								{
@@ -236,9 +238,6 @@ public class ServiceSocketMonitor implements Runnable {
                     
                     boolean bOnline=false;
 
-
-                   
-                    
                     msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
                   
                     //index passed len and cmd ID
@@ -297,7 +296,7 @@ public class ServiceSocketMonitor implements Runnable {
                         Log.v("jiaojc","deviceName:"+deviceName);
                         
                     }
-                      //index passed status
+                    //index passed status
                     
                     //获得当前设备状态 0为不在线，其他值为在线
                     if(msg[msgPtr++]!=0)
@@ -821,12 +820,14 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setSN(deviceSN);
 		 device.setGateway_SN(this.mGate.getSN());
 		 
-		 HttpUtils.syncDevice(device, true, true, null);
-		 
 		 DeviceList.put(device);
+
+		 HttpUtils.syncDevice(device, true, device.isOnline(), null);
+		 
+		 Log.d("wxm", device.getShortAddr() + " report time:  " + 
+				 CommonUtils.formatDate(new Date(), DateFormatType.All));
 		 
 //		 DataUtils.mListDevices.add(device);
-		 
 	}
 	
 	

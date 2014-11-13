@@ -119,4 +119,17 @@ public class CommonUtils {
 		bmp.display(view, url);
 	}
 	
+	public static byte[] subBytes(byte[] source, int start, int len)
+	{
+		byte[] result = new byte[len];
+		if (start + len <= source.length)
+		{
+			for (int i = 0; i < len; i++)
+			{
+				result[i] = source[start + i];
+			}
+		}
+		return result;
+	}
+	
 }

@@ -134,10 +134,6 @@ public class SearchGatewayThread extends Thread{
 		            	
 		            	Log.v("jiaojc","IP:"+gate.getIP()+"\tSN:"+gate.getSN());
 		            	
-//		            	if(!gate.getIP().equals("192.168.1.108"))
-//		            		continue;
-		            		
-		            	
 		            	if(!GatewayList.exists(gate.getSN()))
 		            	{
 		            		GatewayList.add(gate);

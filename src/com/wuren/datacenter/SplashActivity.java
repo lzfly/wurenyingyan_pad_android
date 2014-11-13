@@ -35,6 +35,10 @@ public class SplashActivity extends Activity {
 			configPath.mkdir();
 		}
 		//jiaojc
+		
+		
+		
+		
 		Intent intent = new Intent(SplashActivity.this, DataTransactionService.class);
 		SplashActivity.this.startService(intent);
 		
