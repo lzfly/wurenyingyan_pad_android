@@ -3,6 +3,7 @@ package com.wuren.datacenter;
 import java.io.File;
 import java.util.List;
 
+import com.igexin.sdk.PushManager;
 import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.ConstUtils;
 
@@ -36,7 +37,7 @@ public class SplashActivity extends Activity {
 		}
 		//jiaojc
 		
-		
+		PushManager.getInstance().initialize(this.getApplicationContext());
 		
 		
 		Intent intent = new Intent(SplashActivity.this, DataTransactionService.class);

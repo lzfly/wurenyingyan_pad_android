@@ -25,7 +25,7 @@ public class ConstUtils {
 	
 	public final static int SERVICE_START_WAIT_TIME = 800;	//服务启动等待时间
 	
-	public final static int DEVICE_OFFLINE_INTEVAL_TIME=2*60*1000;//设置设备在线超时时间为3分钟  
+	public final static int DEVICE_OFFLINE_INTEVAL_TIME=3*60*1000;//设置设备在线超时时间为3分钟  
 	
 	public final static int DEVICE_EVENT_OCCUR_TIME=10*1000;//在这个时间内设备多次上报 只算做一次
 	
