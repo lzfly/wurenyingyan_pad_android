@@ -205,6 +205,138 @@ public class HttpUtils {
 		});
 	}
 	
+	//设备上线
+	public static void deviceOnline(DeviceInfoBean device, final HttpResponseListener callback)
+	{
+		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		
+		FinalHttp fh = getFinalHttp();
+		
+		String devName = device.getName();
+		if (devName == null || TextUtils.isEmpty(devName))
+		{
+			devName = device.getIEEE_string_format();
+		}
+		
+		AjaxParams params = new AjaxParams();
+		params.put("device_sn", device.getIEEE_string_format());
+		params.put("is_online", "1");
+		
+		fh.post(url, params, new AjaxCallBack<String>() {
+
+			@Override
+			public void onStart() {
+				super.onStart();
+				
+				if (callback != null)
+				{
+					callback.onStart();
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable t, int errorNo, String strMsg) {
+				super.onFailure(t, errorNo, strMsg);
+				
+				if (callback != null)
+				{
+					callback.onDone(false, null);
+				}
+			}
+
+			@Override
+			public void onSuccess(String t) {
+				super.onSuccess(t);
+				
+				boolean succ = false;
+				try
+				{
+					JSONObject loginObj = JSON.parseObject(t);
+					int code = loginObj.getIntValue("code");
+					if (code == S_SUCC_CODE)
+					{
+						succ = true;
+					}
+				}
+				catch (Exception exp)
+				{
+				}
+				
+				if (callback != null)
+				{
+					callback.onDone(succ, null);
+				}
+			}
+			
+		});
+	}
+	
+	//设备下线
+	public static void deviceOffline(DeviceInfoBean device, final HttpResponseListener callback)
+	{
+		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		
+		FinalHttp fh = getFinalHttp();
+		
+		String devName = device.getName();
+		if (devName == null || TextUtils.isEmpty(devName))
+		{
+			devName = device.getIEEE_string_format();
+		}
+		
+		AjaxParams params = new AjaxParams();
+		params.put("device_sn", device.getIEEE_string_format());
+		params.put("is_online", "0");
+		
+		fh.post(url, params, new AjaxCallBack<String>() {
+
+			@Override
+			public void onStart() {
+				super.onStart();
+				
+				if (callback != null)
+				{
+					callback.onStart();
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable t, int errorNo, String strMsg) {
+				super.onFailure(t, errorNo, strMsg);
+				
+				if (callback != null)
+				{
+					callback.onDone(false, null);
+				}
+			}
+
+			@Override
+			public void onSuccess(String t) {
+				super.onSuccess(t);
+				
+				boolean succ = false;
+				try
+				{
+					JSONObject loginObj = JSON.parseObject(t);
+					int code = loginObj.getIntValue("code");
+					if (code == S_SUCC_CODE)
+					{
+						succ = true;
+					}
+				}
+				catch (Exception exp)
+				{
+				}
+				
+				if (callback != null)
+				{
+					callback.onDone(succ, null);
+				}
+			}
+			
+		});
+	}
+	
 	//同步设备信息
 	public static void syncDevice(DeviceInfoBean device, boolean isOpen, boolean isOnline, final HttpResponseListener callback)
 	{
