@@ -150,12 +150,15 @@ public class DeviceActivity extends BaseActivity {
 		
 		mGate = GatewayList.getGateway(gateway_sn);
 		
-		initDevice();
+		if(mGate!=null)
+		{
+			initDevice();
 		
-		handler.postDelayed(runnable, TIME); //每隔2s执行  
+			handler.postDelayed(runnable, TIME); //每隔5s执行
+		}
 	}
 	
-	private int TIME = 2000; 
+	private int TIME = 5000; 
 	Handler handler = new Handler();  
     Runnable runnable = new Runnable() {  
   
@@ -219,6 +222,8 @@ public class DeviceActivity extends BaseActivity {
 				
 				List<DeviceInfoBean> devices = new ArrayList<DeviceInfoBean>();
 				List<DeviceInfoBean> currList = DeviceList.getDeviceList();
+				
+				
 				for(int i = 0; i < currList.size(); i++)
 				{
 					DeviceInfoBean temp = currList.get(i);

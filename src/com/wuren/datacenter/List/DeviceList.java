@@ -5,6 +5,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import com.wuren.datacenter.bean.DeviceInfoBean;
+import com.wuren.datacenter.bean.GatewayBean;
 
 public class DeviceList {
 
@@ -45,12 +46,13 @@ public class DeviceList {
 		String ieee = device.getIEEE_string_format();
 		synchronized (S_LOCK)
 		{
-			if (S_DEVICES.containsKey(ieee))
-			{
-				DeviceInfoBean currDevice = S_DEVICES.get(ieee);
-				device.setIsOnline(currDevice.isOnline());
-				device.setHeartTime(currDevice.getHeartTime());
-			}
+//			if (S_DEVICES.containsKey(ieee))
+//			{
+//				DeviceInfoBean currDevice = S_DEVICES.get(ieee);
+//				device.setIsOnline(currDevice.isOnline());
+//				device.setHeartTime(currDevice.getHeartTime());
+//				device.setEventTime(currDevice.getEventTime());
+//			}
 			S_DEVICES.put(ieee, device);
 		}
 	}
@@ -92,6 +94,25 @@ public class DeviceList {
 		synchronized (S_LOCK)
 		{
 			result.addAll(S_DEVICES.values());
+		}
+		return result;
+	}
+	
+	
+	public static List<DeviceInfoBean> getDeviceList(GatewayBean gate)
+	{
+		if(gate==null) return null;
+		List<DeviceInfoBean> result = new ArrayList<DeviceInfoBean>();
+		synchronized (S_LOCK)
+		{	
+			List<DeviceInfoBean> allDevices = getDeviceList();
+			for (DeviceInfoBean device : allDevices)
+			{
+				if (device.getGateway_SN().equals(gate.getSN()))
+				{
+					result.add(device);
+				}
+			}
 		}
 		return result;
 	}

@@ -39,9 +39,21 @@ public class DeviceInfoBean {
 	private int saturation=0;//饱和度
 	
 	private int colorTemperature=0;//色温
+	
 	private boolean isOnline = false;
+	
 	private Date heartTime ;
 	
+	private Date eventTime;//上次事件上报时发生的时间，当间隔小于10s内上报，累计算作一次上报
+	
+	public Date getEventTime() {
+		return eventTime;
+	}
+
+	public void setEventTime(Date eventTime) {
+		this.eventTime = eventTime;
+	}
+
 	public boolean isOnline()
 	{
 		return isOnline;

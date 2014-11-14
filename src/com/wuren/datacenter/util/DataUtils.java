@@ -10,6 +10,7 @@ import java.util.List;
 
 import android.util.Log;
 
+import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
@@ -176,6 +177,18 @@ public static final class FbeeControlCommand{
 							e.printStackTrace();
 						}
  						
+ 						
+ 						//将与该网关相关联的设备都置下线状态
+ 						List<DeviceInfoBean> listDevices=DeviceList.getDeviceList(gate);	 						
+ 						if(listDevices!=null && listDevices.size()>0)
+ 						{
+ 							for(int i=0;i<listDevices.size();i++)
+ 							{
+ 								DeviceInfoBean itemDevice=listDevices.get(i);
+ 								itemDevice.setIsOnline(false);
+ 								HttpUtils.deviceOffline(itemDevice, null);
+ 							}
+ 						}
  						
  					}
  					return;

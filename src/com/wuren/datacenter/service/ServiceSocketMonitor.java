@@ -183,7 +183,7 @@ public class ServiceSocketMonitor implements Runnable {
         int msgLen;
         int msgoldstart;
         msgoldstart = msgPtr;
-        Log.v("jiaojc",""+mGate.getIP()+" rpcsProcessIncoming response header--"+msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS]);
+       // Log.v("jiaojc",""+mGate.getIP()+" rpcsProcessIncoming response header--"+msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS]);
         switch (msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS])
         {
          	
@@ -253,7 +253,7 @@ public class ServiceSocketMonitor implements Runnable {
                         }
                         deviceName = new String(device1,0,nameSize);
                         
-                        Log.v("jiaojc","deviceName:"+deviceName);
+                      //  Log.v("jiaojc","deviceName:"+deviceName);
                         
                     }
                     //index passed status
@@ -268,7 +268,7 @@ public class ServiceSocketMonitor implements Runnable {
                     	bOnline=false;
                     }
                     
-                    Log.v("jiaojc","device "+Integer.toHexString(nwkAddr));
+                    
                     
              
                     //copy IEEE Addr
@@ -277,7 +277,12 @@ public class ServiceSocketMonitor implements Runnable {
                         ieee[i] = msg[msgPtr++];
                     }
                     String str_ieee_temp=DataUtils.bytes2HexString(ieee);
-                    Log.v("jiaojc","ieee:"+str_ieee_temp);
+                    
+                    String shortAddress=Integer.toHexString(nwkAddr);
+                    if(shortAddress.length()<4)
+                    	shortAddress="0"+shortAddress;
+                    Log.v("jiaojc","get device:"+shortAddress+"\tieee:"+str_ieee_temp+"\tname:"+deviceName);
+                    
                     
                     if ((msgPtr - msgoldstart + 2) < msgLen)
                     {
@@ -297,7 +302,8 @@ public class ServiceSocketMonitor implements Runnable {
 
                         }
                     }
-                    newDevice(profileId, deviceId, nwkAddr, endPoint, ieee,bOnline,deviceName, deviceSN);
+                    if(!DeviceList.exists(str_ieee_temp))
+                    	newDevice(profileId, deviceId, nwkAddr, endPoint, ieee,bOnline,deviceName, deviceSN);
 
                     break;
                 }
@@ -427,7 +433,6 @@ public class ServiceSocketMonitor implements Runnable {
                     
                     Log.v("jiaojc","device status:"+state+"\tdevice online value:"+device.getOnlineStatus());
                     
-                    
 
                   
                     break;
@@ -466,7 +471,7 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                     	mDeviceListener.onTaskComplete();
                     }
-
+                    
                 
                     break;
                 }
@@ -503,6 +508,8 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                     	mDeviceListener.onTaskComplete();
                     }
+                    
+                    
 
                   
                     break;
@@ -615,14 +622,32 @@ public class ServiceSocketMonitor implements Runnable {
                 	HttpUtils.deviceOnline(device, null);
                 }
                 
-                device.setHeartTime(new Date());
+                Date nowTime=new Date();
+                
+                device.setHeartTime(nowTime);
+                                
                 device.setIsOnline(true);
-                
-                
-                String msgUpload=getUploadMessage(device,data);
-                
-                if(msgUpload.length()!=0)
-                	HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, device.getDeviceType(), null);
+                                
+            	String msgUpload=getUploadMessage(device,data);
+            	
+            	if(msgUpload.length()!=0)
+            	{
+            		Date occurTime=device.getEventTime();                    
+                    if(occurTime==null)
+                    {
+                    	device.setEventTime(nowTime);
+                		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, device.getDeviceType(), null);
+                    }
+                    else
+                    {
+	            		long inteval=nowTime.getTime()-occurTime.getTime();
+	            		if(inteval>ConstUtils.DEVICE_EVENT_OCCUR_TIME)
+	            		{
+	            			device.setEventTime(nowTime);
+	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, device.getDeviceType(), null);
+	            		}
+                    }
+            	}
                 
             }
             break;
@@ -665,6 +690,7 @@ public class ServiceSocketMonitor implements Runnable {
                   {
                   		mDeviceListener.onTaskComplete();
                   }
+                  
             }
             break;
             case DataUtils.FbeeControlCommand.RPCS_GET_GATEDETAIL_RSP:
@@ -679,7 +705,7 @@ public class ServiceSocketMonitor implements Runnable {
             		version[i] = msg[msgPtr++];
                 }
                 String gate_version=new String(version);
-                Log.v("jiaojc","gate version:"+gate_version);
+                
                 
                 byte snid[]=new byte[4];
                 for (int i = 0; i < snid.length; i++)
@@ -687,12 +713,8 @@ public class ServiceSocketMonitor implements Runnable {
                 	snid[3-i] = msg[msgPtr++];
                 }
                 
-                Log.v("jiaojc","snid:"+snid[0]+"\t"+snid[1]+"\tsnid[2]:"+snid[2]+"\tsnid[3]:"+snid[3]);
-                
-                
                 String hexSn=DataUtils.bytes2HexString(snid);
                 
-                Log.v("jiaojc","hexSN:"+hexSn);
                 //username
                 byte user[]=new byte[20];
                 byte pwd[]=new byte[20];
@@ -732,7 +754,7 @@ public class ServiceSocketMonitor implements Runnable {
                 	}
                 }
 
-               Log.v("jiaojc","user:"+new String(user,0,userLenth)+"\tpwd:"+new String(pwd,0,pwdLength));
+             //  Log.v("jiaojc","user:"+new String(user,0,userLenth)+"\tpwd:"+new String(pwd,0,pwdLength));
                
                
                
@@ -801,17 +823,21 @@ public class ServiceSocketMonitor implements Runnable {
 		String deviceType=device.getDeviceType();
 		int typeValue = Integer.parseInt(deviceType.replaceAll("^0[x|X]", ""), 16);
 		
+		
+		//Log.v("jiaojc","into method getUploadMessage deviceType:"+deviceType+"\tvalue:"+value);
+		
 		String result="";
 		switch(typeValue)
 		{
 		case DeviceTypeList.Type.Occupancy_Sensor://红外
+		case DeviceTypeList.Type.Gas_Sensor://Gas
 			
 			if(value!=0)//有人，此时需要组织数据传递到服务器上
 			{
-				result="{\"Occupancy\":\"TRUE\"}";				
-			}
-				
+				result="{\"alarm\":\"true\"}";						
+			}				
 			break;
+			
 		default:
 			break;
 		}

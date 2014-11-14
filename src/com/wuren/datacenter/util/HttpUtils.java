@@ -413,6 +413,7 @@ public class HttpUtils {
 	//提交设备实时数据（报警，温/湿度，颜色，亮度等等）
 	public static void postDeviceData(String devSN, String msg, String type, final HttpResponseListener callback)
 	{
+		Log.v("jiaojc","into method postDeviceData");
 		String url = ConstUtils.S_POST_DATA_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();
@@ -427,7 +428,6 @@ public class HttpUtils {
 			@Override
 			public void onStart() {
 				super.onStart();
-				
 				if (callback != null)
 				{
 					callback.onStart();
@@ -437,7 +437,6 @@ public class HttpUtils {
 			@Override
 			public void onFailure(Throwable t, int errorNo, String strMsg) {
 				super.onFailure(t, errorNo, strMsg);
-				
 				if (callback != null)
 				{
 					callback.onDone(false, null);
@@ -447,12 +446,12 @@ public class HttpUtils {
 			@Override
 			public void onSuccess(String t) {
 				super.onSuccess(t);
-				
 				boolean succ = false;
 				try
 				{
 					JSONObject loginObj = JSON.parseObject(t);
 					int code = loginObj.getIntValue("code");
+					
 					if (code == S_SUCC_CODE)
 					{
 						succ = true;

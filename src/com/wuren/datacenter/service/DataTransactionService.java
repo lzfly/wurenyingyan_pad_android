@@ -297,11 +297,9 @@ public class DataTransactionService extends Service{
 			// TODO Auto-generated method stub
 			while(true)
 			{
-			//	Log.v("jiaojc","heart beat:"+mSocket.getInetAddress().getHostAddress());
-				
 				try{
 	 				mSocket.sendUrgentData(0xFF);
-	 				}
+ 				}
 				catch(Exception ex)
 				{
 	 					//ex.printStackTrace();
@@ -312,21 +310,30 @@ public class DataTransactionService extends Service{
 	 					{
 	 						mHtGateway_Socket_Table.remove(gate.getSN());
 	 						GatewayList.remove(gate);
-	 						//停止监听线程
 	 						
-	 						try {
-	 							
+	 						//停止监听线程	 						
+	 						try {	 							
 								mSocket.close();
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
+	 						
+	 						//将与该网关相关联的设备都置下线状态
+	 						List<DeviceInfoBean> listDevices=DeviceList.getDeviceList(gate);	 						
+	 						if(listDevices!=null && listDevices.size()>0)
+	 						{
+	 							for(int i=0;i<listDevices.size();i++)
+	 							{
+	 								DeviceInfoBean itemDevice=listDevices.get(i);
+	 								itemDevice.setIsOnline(false);
+	 								HttpUtils.deviceOffline(itemDevice, null);
+	 							}
+	 						}
 	 							 						
 	 						//当前线程也要停止
-	 						break;
-	 						
-	 					}
-	 					
+	 						break;	 						
+	 					}	 					
 				}
 				SystemClock.sleep(5*1000);//5秒监听一次
 				
@@ -368,7 +375,6 @@ public class DataTransactionService extends Service{
 							 {
 								 Log.v("jiaojc1","between >DEVICE_OFFLINE_INTEVAL_TIME device is offline");
 								 bean.setIsOnline(false);
-								 DeviceList.put(bean);							 
 								 HttpUtils.deviceOffline(bean, null);
 							 }
 						 }
