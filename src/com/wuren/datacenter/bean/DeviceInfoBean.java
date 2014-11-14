@@ -2,6 +2,8 @@ package com.wuren.datacenter.bean;
 
 import java.util.Date;
 
+import android.util.Log;
+
 public class DeviceInfoBean {
 	
 	private String name; //device name
@@ -38,7 +40,7 @@ public class DeviceInfoBean {
 	
 	private int colorTemperature=0;//色温
 	private boolean isOnline = false;
-	private Date heartTime = new Date();
+	private Date heartTime ;
 	
 	public boolean isOnline()
 	{
@@ -114,6 +116,11 @@ public class DeviceInfoBean {
 
 	public void setDeviceType(int deviceType) {
 		this.deviceType = String.format("%#06x", deviceType);
+		
+		//反得devicetype int类型值
+		//int b = Integer.parseInt(this.deviceType.replaceAll("^0[x|X]", ""), 16);
+		
+		
 	}
 
 	public int getClusterID() {

@@ -38,19 +38,16 @@ public class SearchGatewayThread extends Thread{
     }  
     
     public void run(){  
-    	
-    	
+
     	while(true)
     	{
     		search();
     		SystemClock.sleep(SEARCH_INTEVAL_SECOND*1000);
     	}
     	
-    	
-		
     } 
     
-    private void searchFebee(int gatewayType)
+    private void searchFebee()
     {
     	String mDataString=ConstUtils.S_SEARCH_GATEWAY_COMMAND;
     	DatagramPacket dataPacket = null;
@@ -108,8 +105,7 @@ public class SearchGatewayThread extends Thread{
 		            	
 		            	
 		            	String strIPArray[]=strArray[0].split(":");
-		            	
-		            	
+		            			            	
 		            	gate.setIP(strIPArray[1]);
 		            	
 		            	String strSNArray[]=strArray[1].split(":");
@@ -145,6 +141,7 @@ public class SearchGatewayThread extends Thread{
 		            		
 		            		//开始启动心跳监听进程开始监听是否与网关断网
 		            		startHeartBeatListen(gate);
+		            		
 		            		//开始获得gate 详细数据
 		            		FebeeAPI.getInstance().getGateDetailInfo(gate.getSN());
 		            		
@@ -180,9 +177,12 @@ public class SearchGatewayThread extends Thread{
     	 Intent intent = new Intent( mContext, DataTransactionService.class);
 		 intent.setAction(DataTransactionService.SEARCH_HEART_BEAT_ACTION);
 		 intent.putExtra("gateway_sn", gate.getSN());//目的是为搜索到侦听的socket		 
-		 mContext.startService(intent);
-    	
+		 mContext.startService(intent);    	
     }
+    
+    
+    //
+   
     
     private Socket beginListenGateway( GatewayBean gate)
     {
@@ -229,140 +229,9 @@ public class SearchGatewayThread extends Thread{
     private void search()
     {
     	//开始搜索飞比网关
-    	searchFebee(ConstUtils.GatewayType.GATEWAY_FEBEE);
+    	searchFebee();
     }
-    
-
 
 }
 
 
-//public class SearchGatewayThread extends Thread{
-//	
-//	
-//	private static final String LOG_TAG = "SearchGatewayThread";
-//	  
-//    private String mDataString;  
-//    private DatagramSocket mUdpSocket;  
-//    public static final int DEFAULT_PORT = 9090;  
-//    
-//    private static final int MAX_DATA_PACKET_LENGTH = 256;  
-//   
-//    private Context mContext;
-//    public SearchGatewayThread( String dataString ,Context context) {  
-//    	this.mDataString = dataString;  
-//    	this.mContext=context;
-//    }  
-//    
-//     
-//  
-//    public void run(){  
-//		DatagramPacket dataPacket = null;  
-//   
-//		try {  
-//    		mUdpSocket = new DatagramSocket(DEFAULT_PORT );  
-//    		byte[] buffer = new byte[MAX_DATA_PACKET_LENGTH];  
-//            dataPacket = new DatagramPacket(buffer, MAX_DATA_PACKET_LENGTH);   
-//            
-//            byte[] data = mDataString.getBytes();  
-//            dataPacket.setData( data );  
-//            dataPacket.setLength( data.length );  
-//            dataPacket.setPort( DEFAULT_PORT );     
-//
-//            InetAddress broadcastAddr;  
-//
-//            broadcastAddr = InetAddress.getByName("255.255.255.255");  
-//            dataPacket.setAddress(broadcastAddr);
-//            
-//            Log.v(LOG_TAG,"begin send command:"+mDataString);
-//            
-//            mUdpSocket.send(dataPacket);
-//        } catch (Exception e) {  
-//            Log.e(LOG_TAG, e.toString());  
-//        } 
-//    
-//        Log.v(LOG_TAG,"begin receive command...");
-//        byte[] data=new byte[256] ;
-//        DatagramPacket udpReceivePacket  = new DatagramPacket( data, 256 );
-//        
-//        GatewayBean gate=new GatewayBean();
-//        while( true )
-//        {  
-//        	
-//            try {      
-//            	mUdpSocket.receive(udpReceivePacket);  
-//            } catch (Exception e) {  
-//                System.out.println( e.toString());  
-//            }  
-//
-//            String strMsg=new String(udpReceivePacket.getData()).trim();
-//            if( strMsg.length() != 0 ){
-//            	
-//                if(strMsg.contains("IP:"))
-//	            {	            	
-//	            	Log.v(LOG_TAG,strMsg);
-//	            	
-//	            	String strArray[]=strMsg.split("\r\n");
-//	            	
-//	            	
-//	            	String strIPArray[]=strArray[0].split(":");
-//	            	
-//	            	if(DataTransactionService.mListGateway==null)
-//	            		DataTransactionService.mListGateway=new ArrayList();
-//	            	
-//	            	gate.setIP(strIPArray[1]);
-//	            	
-//	            	String strSNArray[]=strArray[1].split(":");
-//	            	gate.setSN(strSNArray[1]);
-//	            	
-//	            	
-////	            	Integer sn10=Integer.valueOf(strSNArray[1],16);
-////	            	
-////	            	Log.v("jiaojc","sn10:"+sn10);
-////	            	
-////	            	int []karray=new int[4];
-////	            	karray[0]=sn10%256;
-////	            	karray[1]=(sn10/256)%256;
-////	            	karray[2]=(sn10/256/256)%256;
-////	            	karray[3]=sn10/256/256/256;
-////	            	
-////	            	Log.v("jiaojc","karray[0]:"+karray[0]+"\tkarray[1]:"+karray[1]+"\tkarray[2]:"+karray[2]
-////	            			+"\tkarray[3]:"+karray[3]);
-////	            	DataTransactionService.mGateway.setSNArray(karray);
-//	            	
-//	            	String str3=strSNArray[1].substring(0,2);
-//	            	String str2=strSNArray[1].substring(2,4);
-//	            	String str1=strSNArray[1].substring(4,6);
-//	            	String str0=strSNArray[1].substring(6,8);
-//	            	
-//	            	byte[]karray=new byte[4];
-//	            		            	
-//	            	
-//	            	karray[0]=(byte)(int)Integer.valueOf(str0,16);	            		            	
-//	            	karray[1]=(byte)(int)Integer.valueOf(str1,16);
-//	            	karray[2]=(byte)(int)Integer.valueOf(str2,16);
-//	            	karray[3]=(byte)(int)Integer.valueOf(str3,16);
-//	            	
-//	            	gate.setSNArray(karray);
-//	            	
-//	            	
-//	            	Log.v("jiaojc","IP:"+gate.getIP()+"\tSN:"+gate.getSN());
-//	            	
-//	            	DataTransactionService.mListGateway.add(gate);
-//	            	
-//	            	
-//	            	
-//	            	//将byte转为int的方法 记得保留下来。
-//	            	//int tt=karray[0]&0xff;
-//	            
-//	         	    break;
-//	            	
-//	            }
-//            
-//            }  
-//            SystemClock.sleep(1000);
-//        }  
-//    }  
-//
-//
-//}

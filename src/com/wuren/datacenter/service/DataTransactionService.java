@@ -26,12 +26,14 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 import com.wuren.datacenter.util.FebeeAPI;
+import com.wuren.datacenter.util.HttpUtils;
 
 import android.app.Service;
 import android.content.Context;
@@ -65,6 +67,10 @@ public class DataTransactionService extends Service{
 	public static final String REQUEST_GATEWAYDETAIL_ACTION="com.wuren.datacenter.REQUEST_GATEWAYDETAIL";
 	
 	
+	
+	//设备在线状态监听进程
+	public static final String Listen_Device_Online_Status_ACTION="com.wuren.datacenter.ListenDeviceOnline";
+		
 	public static Hashtable mHtGateway_Socket_Table=new Hashtable();
 	
 	public static Handler mHandler;
@@ -149,7 +155,9 @@ public class DataTransactionService extends Service{
 //		Log.v("jiaojc","test:"+test+"\tlength:"+test.length());
 //		Log.v("jiaojc","test2:"+test2+"\t test2 length:"+test2.length());
 		
-		processSearchGateway();     
+		processSearchGateway();  
+				
+		startListenDevicesOnlineStatus();
 	
 		
 		
@@ -170,7 +178,11 @@ public class DataTransactionService extends Service{
 
 	
 	
-	
+	 private void startListenDevicesOnlineStatus()
+	 {		 
+		 new Thread(new DeviceOnlineListenRequest()).start();   
+	 }
+	    
 	
 	 
 	
@@ -263,10 +275,10 @@ public class DataTransactionService extends Service{
     				Log.v("jiaojc","getway user:"+username+"\tpwd:"+password);
 
         		}
-        		
-
-  	 		  
         	}
+        	
+        	
+        	
 		}
 	}
 	
@@ -292,12 +304,77 @@ public class DataTransactionService extends Service{
 	 				}
 				catch(Exception ex)
 				{
-	 					ex.printStackTrace();
+	 					//ex.printStackTrace();
 	 					Log.v("jiaojc","heart beat send error:"+mSocket.getInetAddress().getHostAddress());
-	 			//	reconnect();
-	 			}
-				SystemClock.sleep(3*1000);//3秒监听一次
+	 					//从table里删除mSocket,并关闭当前socket,Gatewaylist里也要删除相应的网关
+	 					GatewayBean gate=GatewayList.findByIP(mSocket.getInetAddress().getHostAddress());
+	 					if(gate!=null)
+	 					{
+	 						mHtGateway_Socket_Table.remove(gate.getSN());
+	 						GatewayList.remove(gate);
+	 						//停止监听线程
+	 						
+	 						try {
+	 							
+								mSocket.close();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+	 							 						
+	 						//当前线程也要停止
+	 						break;
+	 						
+	 					}
+	 					
+				}
+				SystemClock.sleep(5*1000);//5秒监听一次
 				
+			}
+		}
+		
+	}
+	
+	
+	private class DeviceOnlineListenRequest implements Runnable
+	{
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			while(true)
+			{
+				Date currentDate=new Date();
+				
+				List<DeviceInfoBean> currentDeviceList=DeviceList.getDeviceList();
+				for(int i=0;i<currentDeviceList.size();i++)
+				{
+					DeviceInfoBean bean=currentDeviceList.get(i);
+					Date heartTime=bean.getHeartTime();
+					if(heartTime==null)
+						continue;
+					else
+					{
+						//比较当前时间和heartTime,当超过设定时间就算下线
+						//需要上报服务器并置在线状态为false
+						
+						 long between=(currentDate.getTime()-heartTime.getTime())/1000;		
+						 
+						 
+						 Log.v("jiaojc1","between:"+between);
+						 if(between>(ConstUtils.DEVICE_OFFLINE_INTEVAL_TIME/1000))
+						 {
+							 
+							 if(bean.isOnline())
+							 {
+								 Log.v("jiaojc1","between >DEVICE_OFFLINE_INTEVAL_TIME device is offline");
+								 bean.setIsOnline(false);
+								 DeviceList.put(bean);							 
+								 HttpUtils.deviceOffline(bean, null);
+							 }
+						 }
+					}
+				}
+				SystemClock.sleep(30*1000);//30秒监听一次				
 			}
 		}
 		

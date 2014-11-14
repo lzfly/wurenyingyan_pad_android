@@ -11,6 +11,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import com.wuren.datacenter.List.DeviceList;
+import com.wuren.datacenter.List.DeviceTypeList;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
@@ -82,11 +83,6 @@ public class ServiceSocketMonitor implements Runnable {
 	@Override
 	public void run() {
 		
-		//if (!S_RUNNING)
-		//{
-			
-			//	S_RUNNING = true;
-				
 				while(true)
 				{
 				
@@ -96,11 +92,23 @@ public class ServiceSocketMonitor implements Runnable {
 						if (mSocket != null )
 						{
 							
+							if(mSocket.isClosed())
+							{
+								//断线了
+								Log.v("jiaojc", mSocket.getInetAddress().getHostAddress()+"  is closed,Thread will be closed");
+								break;
+							}
+							
 							if( mSocket.isConnected())
 							{
+								
 								try 
 								{
 									InputStream stream = mSocket.getInputStream();
+									
+									if(stream==null)
+										break;
+										
 									m_ReadStream.reset();
 									
 									int buffSize = 512;
@@ -149,7 +157,8 @@ public class ServiceSocketMonitor implements Runnable {
 							else
 							{
 								//断线了
-								Log.v("jiaojc", mSocket.getInetAddress().getHostAddress()+"  is disconnected");
+								Log.v("jiaojc", mSocket.getInetAddress().getHostAddress()+"  is disconnected");								
+								break;
 							}
 							
 	
@@ -163,61 +172,12 @@ public class ServiceSocketMonitor implements Runnable {
 					{
 						exp.printStackTrace();
 					}
-					
-				
-					
-				
 			
 		  }
-		//}
+		
 		
 	}
-	
-	
-	
-//	@Override
-//	public void run() {
-//		
-//		 byte[] data = new byte[1024];
-//		 int buffSize = 1024;
-//         int recv;
-//         int bytesRead = 0;
-//         int bytesProcessed = 0;
-//        
-//         if(S_RUNNING==false)
-//        	 S_RUNNING=true;
-//         
-//         while (true)
-//         {
-//             try
-//             {
-//            	 InputStream stream = mSocket.getInputStream();
-//
-//            	 recv = stream.read(data, 0, buffSize);
-//                 if (recv > 2)
-//                 {
-//                     bytesRead = recv;
-//                     bytesProcessed = 0;
-//                     while (bytesRead > bytesProcessed)
-//                     {
-//                         bytesProcessed += rpcsProcessIncoming(data, bytesProcessed);
-//                         
-//                     }
-//                 }
-//             }
-//             catch(Exception e)
-//             {
-//            	 e.printStackTrace();
-//             }
-//             
-//           //  SystemClock.sleep(5000);
-//             
-//             if(S_RUNNING==false)
-//            	 break;
-//         }
-//         
-//	}
-	
+
 	public int rpcsProcessIncoming(byte[] msg, int msgPtr)
     {
         int msgLen;
@@ -251,13 +211,13 @@ public class ServiceSocketMonitor implements Runnable {
                         nwkAddr += (nwkAddrTemp << (8 * i));
                     }
                     
-                    Log.v("jiaojc","shortAddress:"+nwkAddr+"\tHex:"+Integer.toHexString(nwkAddr));                    
+             //       Log.v("jiaojc","shortAddress:"+nwkAddr+"\tHex:"+Integer.toHexString(nwkAddr));                    
                     
                     //Get the EndPoint
                     byte byte_endpoint=msg[msgPtr++];
                     endPoint = (char)byte_endpoint;
                     
-                    Log.v("jiaojc","endPoint byteValue:"+byte_endpoint+"\tchar format:"+endPoint);
+                 //   Log.v("jiaojc","endPoint byteValue:"+byte_endpoint+"\tchar format:"+endPoint);
 
                     //Get the ProfileId
                     for (int i = 0; i < 2; i++, msgPtr++)
@@ -266,7 +226,7 @@ public class ServiceSocketMonitor implements Runnable {
                         profileId += (profileIdTemp << (8 * i));
                     }
                     
-                    Log.v("jiaojc","profileId:"+profileId+"\tHex:"+Integer.toHexString(profileId));
+              //      Log.v("jiaojc","profileId:"+profileId+"\tHex:"+Integer.toHexString(profileId));
 
                     //Get the DeviceId
                     for (int i = 0; i < 2; i++, msgPtr++)
@@ -276,7 +236,7 @@ public class ServiceSocketMonitor implements Runnable {
                     }
                     
                     
-                    Log.v("jiaojc","deviceId:"+deviceId+"\tHex:"+Integer.toHexString(deviceId));
+            //        Log.v("jiaojc","deviceId:"+deviceId+"\tHex:"+Integer.toHexString(deviceId));
 
 
                     //index passed version
@@ -308,7 +268,7 @@ public class ServiceSocketMonitor implements Runnable {
                     	bOnline=false;
                     }
                     
-                    Log.v("jiaojc","device "+Integer.toHexString(nwkAddr)+" online value:"+bOnline);
+                    Log.v("jiaojc","device "+Integer.toHexString(nwkAddr));
                     
              
                     //copy IEEE Addr
@@ -333,7 +293,7 @@ public class ServiceSocketMonitor implements Runnable {
 
                             
                             deviceSN = new String(device2,0,snSize);
-                            Log.v("jiaojc","deviceSN:"+deviceSN);
+                //            Log.v("jiaojc","deviceSN:"+deviceSN);
 
                         }
                     }
@@ -356,20 +316,7 @@ public class ServiceSocketMonitor implements Runnable {
                         int groupIdTemp = (msg[msgPtr] & 0xff);
                         groupId +=(short) (groupIdTemp << (8 * i));
                     }
-                    /*
-                    String groupNameStr = new String(msg, msgPtr + 1, msg[msgPtr], Charset.defaultCharset());
-
-                    List<ZigbeeGroup> groupList = ZigbeeAssistant.getGroups();
-                    //find the group
-                    for (int i = 0; i < groupList.size(); i++)
-                    {
-                        if (groupNameStr.equals(groupList.get(i).getGroupName()))
-                        {
-                            groupList.get(i).setGroupId(groupId);
-                            groupList.get(i).setStatus(ZigbeeGroup.groupStatusActive);
-                            break;
-                        }
-                    }*/
+             
                     break;
                 }
 
@@ -415,20 +362,7 @@ public class ServiceSocketMonitor implements Runnable {
 
                     //Get the sceneId
                     sceneId = (byte)msg[msgPtr++];
-                    /*
-                    String sceneNameStr = new String(msg, msgPtr + 1, msg[msgPtr], Charset.defaultCharset());
-
-                    List<ZigbeeScene> sceneList = ZigbeeAssistant.getScenes();
-                    //find the scene
-                    for (int i = 0; i < sceneList.size(); i++)
-                    {
-                        if (sceneNameStr.equals(sceneList.get(i).getSceneName()) && (groupId == sceneList.get(i).getGroupId()))
-                        {
-                            sceneList.get(i).setSceneId(sceneId);
-                            sceneList.get(i).setStatus(ZigbeeScene.sceneStatusActive);
-                            break;
-                        }
-                    }*/
+         
                     break;
                 }
 
@@ -460,7 +394,7 @@ public class ServiceSocketMonitor implements Runnable {
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_STATE_RSP:
                 {
-                    short nwkAddr = 0;
+                    int nwkAddr = 0;
                     byte endPoint = 0;
                     byte state = 0;
                     msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
@@ -473,7 +407,7 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                         //java does not support unsigned so use a bigger container to avoid conversion issues
                         int nwkAddrTemp = (msg[msgPtr] & 0xff);
-                        nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                        nwkAddr += (nwkAddrTemp << (8 * i));
                     }
 
                     //Get the EP
@@ -500,7 +434,7 @@ public class ServiceSocketMonitor implements Runnable {
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_LEVEL_RSP:
                 {
-                    short nwkAddr = 0;
+                    int nwkAddr = 0;
                     byte endPoint = 0;
                     byte level = 0;
                     msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
@@ -513,7 +447,7 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                         //java does not support unsigned so use a bigger container to avoid conversion issues
                         int nwkAddrTemp = (msg[msgPtr] & 0xff);
-                        nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                        nwkAddr += (nwkAddrTemp << (8 * i));
                     }
 
                     //Get the EP
@@ -533,22 +467,12 @@ public class ServiceSocketMonitor implements Runnable {
                     	mDeviceListener.onTaskComplete();
                     }
 
-                    /*
-                    List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
-                    //find the device
-                    for (int i = 0; i < devList.size(); i++)
-                    {
-                        if ((((short)devList.get(i).NetworkAddr) == nwkAddr) && (devList.get(i).EndPoint == endPoint))
-                        {
-                            devList.get(i).setCurrentLevel(level);
-                            break;
-                        }
-                    }*/
+                
                     break;
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_HUE_RSP:
                 {
-                    short nwkAddr = 0;
+                    int nwkAddr = 0;
                     byte endPoint = 0;
                     byte hue = 0;
                     msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
@@ -561,7 +485,7 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                         //java does not support unsigned so use a bigger container to avoid conversion issues
                         int nwkAddrTemp = (msg[msgPtr] & 0xff);
-                        nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                        nwkAddr += (nwkAddrTemp << (8 * i));
                     }
 
                     //Get the EP
@@ -580,22 +504,12 @@ public class ServiceSocketMonitor implements Runnable {
                     	mDeviceListener.onTaskComplete();
                     }
 
-                    /*
-                    List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
-                    //find the device
-                    for (int i = 0; i < devList.size(); i++)
-                    {
-                        if ((((short)devList.get(i).NetworkAddr) == nwkAddr) && (devList.get(i).EndPoint == endPoint))
-                        {
-                            devList.get(i).setCurrentHue(hue);
-                            break;
-                        }
-                    }*/
+                  
                     break;
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_SAT_RSP:
                 {
-                    short nwkAddr = 0;
+                    int nwkAddr = 0;
                     byte endPoint = 0;
                     byte sat = 0;
                     msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
@@ -608,7 +522,7 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                         //java does not support unsigned so use a bigger container to avoid conversion issues
                         int nwkAddrTemp = (msg[msgPtr] & 0xff);
-                        nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                        nwkAddr += (nwkAddrTemp << (8 * i));
                     }
 
                     //Get the EP
@@ -627,29 +541,94 @@ public class ServiceSocketMonitor implements Runnable {
                     {
                     	mDeviceListener.onTaskComplete();
                     }
-                    /*
-
-                    List<ZigbeeDevice> devList = ZigbeeAssistant.getDevices();
-                    //find the device
-                    for (int i = 0; i < devList.size(); i++)
-                    {
-                        if ((((short)devList.get(i).NetworkAddr) == nwkAddr) && (devList.get(i).EndPoint == endPoint))
-                        {
-                            devList.get(i).setCurrentSat(sat);
-                            break;
-                        }
-                    }*/
+            
                     break;
                 }
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_SP:
             {
+            	int nwkAddr = 0;
+                byte endPoint = 0;
+                short cluster_id=0;
+                byte report_number=0;
+                
+                short attribute_id=0;
+                
+                byte dataType=0;
+                
+                byte data=0;
+                 
             	msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
-            	//Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" received a device response.");
+            	
+            	
+            	
+            	 //index passed len and cmd ID
+                msgPtr += 2;
+
+                //Get the nwkAddr
+                for (int i = 0; i < 2; i++, msgPtr++)
+                {
+                    int nwkAddrTemp = (msg[msgPtr] & 0xff);
+                    nwkAddr += (nwkAddrTemp << (8 * i));
+                }
+                
+                String strShortAddr=Integer.toHexString(nwkAddr).toUpperCase();
+                if(strShortAddr.length()<4)
+                	strShortAddr="0"+strShortAddr;
+                
+              //  Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+"--"+strShortAddr+" received a device response. value:"+nwkAddr);
+
+                //Get the EP
+                endPoint = (byte)msg[msgPtr++];
+                
+                //Cluster ID
+                for (int i = 0; i < 2; i++, msgPtr++)
+                {
+                    //java does not support unsigned so use a bigger container to avoid conversion issues
+                    int clusterIDTemp = (msg[msgPtr] & 0xff);
+                    cluster_id += (short)(clusterIDTemp << (8 * i));
+                }
+                
+                //报告个数
+                report_number=msg[msgPtr++];
+                
+                //Attribute id
+                for (int i = 0; i < 2; i++, msgPtr++)
+                {
+                    //java does not support unsigned so use a bigger container to avoid conversion issues
+                    int attributeIDTemp = (msg[msgPtr] & 0xff);
+                    attribute_id += (short)(attributeIDTemp << (8 * i));
+                }
+                
+                //Data type
+                dataType=msg[msgPtr++];
+                
+                //Data
+                data=msg[msgPtr++];
+                
+                //开始处理
+                DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
+                
+                //先判断当前设备之前的在线状态，当为非在线状态时，需要上报                
+                if(!device.isOnline())
+                {                	
+                	Log.v("jiaojc1",strShortAddr+"--before is offline,will set online status");
+                	HttpUtils.deviceOnline(device, null);
+                }
+                
+                device.setHeartTime(new Date());
+                device.setIsOnline(true);
+                
+                
+                String msgUpload=getUploadMessage(device,data);
+                
+                if(msgUpload.length()!=0)
+                	HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, device.getDeviceType(), null);
+                
             }
             break;
             case DataUtils.FbeeControlCommand.RPCS_GET_DEV_ColorTemperature_RSP:
             {
-            	  short nwkAddr = 0;
+            	  int nwkAddr = 0;
                   byte endPoint = 0;
                   int colorTemperature = 0;
                   msgLen = msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_LEN_POS] + 2;
@@ -662,7 +641,7 @@ public class ServiceSocketMonitor implements Runnable {
                   {
                       //java does not support unsigned so use a bigger container to avoid conversion issues
                       int nwkAddrTemp = (msg[msgPtr] & 0xff);
-                      nwkAddr += (short)(nwkAddrTemp << (8 * i));
+                      nwkAddr=(nwkAddrTemp << (8 * i));
                   }
 
                   //Get the EP
@@ -785,28 +764,12 @@ public class ServiceSocketMonitor implements Runnable {
 	
 	
 	
+	
+	
 	private void newDevice(int profileId,int deviceId, int nwkAddr, char endPoint,byte[] ieee,
 			boolean bOnline,String deviceName, String deviceSN)
 	{
 		String strIEEE=DataUtils.bytes2HexString(ieee);
-//		boolean bAdded=false;
-//		
-//		for(int i=0;i<DataUtils.mListDevices.size();i++)
-//		{
-//			byte[]ieee_item=DataUtils.mListDevices.get(i).getIEEE();
-//			
-//			String str_ieee_temp=DataUtils.bytes2HexString(ieee_item);
-//			
-//			if(str_ieee_temp.equals(strIEEE))
-//			{
-//				bAdded=true;
-//				break;
-//			}
-//		}
-//		
-//		if(bAdded)
-//			return;
-		
 		 DeviceInfoBean device=new DeviceInfoBean();
 		 
 		 device.setProfileID(profileId);
@@ -820,102 +783,46 @@ public class ServiceSocketMonitor implements Runnable {
 		 device.setSN(deviceSN);
 		 device.setGateway_SN(this.mGate.getSN());
 		 
+		// device.setHeartTime(new Date());
+		// device.setIsOnline(true);
+		 
 		 DeviceList.put(device);
 
 		 HttpUtils.syncDevice(device, true, device.isOnline(), null);
 		 
 		 Log.d("wxm", device.getShortAddr() + " report time:  " + 
 				 CommonUtils.formatDate(new Date(), DateFormatType.All));
-		 
-//		 DataUtils.mListDevices.add(device);
+	}
+	
+	
+	//将数据组成对应的json格式
+	private String getUploadMessage(DeviceInfoBean device ,int value)
+	{
+		String deviceType=device.getDeviceType();
+		int typeValue = Integer.parseInt(deviceType.replaceAll("^0[x|X]", ""), 16);
+		
+		String result="";
+		switch(typeValue)
+		{
+		case DeviceTypeList.Type.Occupancy_Sensor://红外
+			
+			if(value!=0)//有人，此时需要组织数据传递到服务器上
+			{
+				result="{\"Occupancy\":\"TRUE\"}";				
+			}
+				
+			break;
+		default:
+			break;
+		}
+		
+		return result;
 	}
 	
 	
 	
 	
-
-//	@Override
-//	public void run() {
-//		
-//		if (!S_RUNNING)
-//		{
-//			synchronized(S_SINGLE_RUN_LOCK)
-//			{
-//				S_RUNNING = true;
-//				
-//				while(S_RUNNING)
-//				{
-//				
-//					try
-//					{
-//						
-//						if (mSocket != null && mSocket.isConnected())
-//						{
-//							
-//								try 
-//								{
-//									InputStream stream = mSocket.getInputStream();
-//									m_ReadStream.reset();
-//									
-//									int buffSize = 512;
-//									byte[] buff = new byte[buffSize];
-//									int readSize = stream.read(buff, 0, buffSize);
-//	
-//									while (readSize > 0)
-//									{
-//										
-//										m_ReadStream.write(buff, 0, readSize);
-//										
-//										if (readSize < buffSize)									
-//											break;
-//																			
-//										readSize = stream.read(buff, 0, buffSize);
-//									}
-//									
-//									byte[] receivedData = m_ReadStream.toByteArray();
-//
-//									if (receivedData.length > 0)
-//									{
-//										String msgs="";
-//										for(int k=0;k<receivedData.length;k++)
-//										{
-//											msgs+=(receivedData[k]&0xff);
-//											msgs+="\t";
-//											
-//										}
-//									//	 Log.v("jiaojc","msg:"+msgs+"\n");
-//										
-//										 Intent in = new Intent( mContext, DataTransactionService.class);
-//										 in.setAction(DataTransactionService.RESPONSE_COMMANDS_ACTION);
-//										 
-//										 in.putExtra("command_type", mOperatorType);
-//										 in.putExtra("byte_array", receivedData);
-//										 mContext.startService(in);	
-//										 
-//									}
-//									
-//								} 
-//								catch (Exception e) 
-//								{
-//									e.printStackTrace();
-//								}
-//								
-//								
-//								
-//								
-//	
-//							}					
-//							
-//						}				
-//					catch (Exception exp)
-//					{
-//						exp.printStackTrace();
-//					}				
-//				
-//			}
-//		  }
-//		}
-//		
-//	}
 	
+	
+		
 }

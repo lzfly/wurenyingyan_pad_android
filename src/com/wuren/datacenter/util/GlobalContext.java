@@ -19,16 +19,18 @@ public class GlobalContext extends Application {
 		S_INSTANCE = this;
 		
 		final String devId = CommonUtils.getDeviceId(this);
+		//final String devId = "351792055028994";
 		HttpUtils.init(devId, new HttpUtils.HttpResponseListener() {
 			
 			@Override
 			public void onStart() {
 			}
-			
+
 			@Override
 			public void onDone(boolean succ, String result) {
 				if (succ)
 				{
+					
 					HttpUtils.login(devId, S_PASS, new HttpUtils.HttpResponseListener() {
 						
 						@Override

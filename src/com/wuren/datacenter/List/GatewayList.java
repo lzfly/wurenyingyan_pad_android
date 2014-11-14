@@ -12,6 +12,10 @@ public class GatewayList {
 
 	private static Hashtable<String, GatewayBean> S_GATEWAYS = new Hashtable<String, GatewayBean>();
 	
+	
+	private static Object S_LOCK = new Object();
+	
+	
 	public static void clear()
 	{
 		S_GATEWAYS.clear();
@@ -28,7 +32,9 @@ public class GatewayList {
 		String sn = gateway.getSN();
 		if (!exists(sn))
 		{
-			S_GATEWAYS.put(sn, gateway);
+			synchronized (S_LOCK){
+				S_GATEWAYS.put(sn, gateway);
+			}
 		}
 		return false;
 	}
@@ -37,7 +43,10 @@ public class GatewayList {
 	public static void put(GatewayBean gateway)
 	{
 		String sn = gateway.getSN();
-		S_GATEWAYS.put(sn, gateway);
+		synchronized (S_LOCK)
+		{
+			S_GATEWAYS.put(sn, gateway);
+		}
 	}
 	
 	public static GatewayBean getGateway(String sn)
@@ -68,6 +77,16 @@ public class GatewayList {
 		}
 		
 		return result;
+	}
+	
+	public static void remove(GatewayBean gate)
+	{
+		String gateway_sn=gate.getSN();
+		
+		synchronized (S_LOCK)
+		{
+			S_GATEWAYS.remove(gateway_sn);
+		}
 	}
 	
 	public static List<GatewayBean> getGatewayList()

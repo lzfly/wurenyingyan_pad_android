@@ -1,6 +1,7 @@
 package com.wuren.datacenter.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -211,7 +212,7 @@ public class HttpUtils {
 		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();
-		
+				  
 		String devName = device.getName();
 		if (devName == null || TextUtils.isEmpty(devName))
 		{
@@ -222,6 +223,7 @@ public class HttpUtils {
 		params.put("device_sn", device.getIEEE_string_format());
 		params.put("is_online", "1");
 		
+				
 		fh.post(url, params, new AjaxCallBack<String>() {
 
 			@Override
@@ -286,6 +288,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("device_sn", device.getIEEE_string_format());
+		Log.v("jiaojc","deviceOffline---device_sn:"+device.getIEEE_string_format());
 		params.put("is_online", "0");
 		
 		fh.post(url, params, new AjaxCallBack<String>() {
@@ -340,6 +343,7 @@ public class HttpUtils {
 	//同步设备信息
 	public static void syncDevice(DeviceInfoBean device, boolean isOpen, boolean isOnline, final HttpResponseListener callback)
 	{
+		
 		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();

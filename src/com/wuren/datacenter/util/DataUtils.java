@@ -13,6 +13,7 @@ import android.util.Log;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.GatewayBean;
+import com.wuren.datacenter.service.DataTransactionService;
 
 public class DataUtils {
 	
@@ -158,6 +159,27 @@ public static final class FbeeControlCommand{
 	            
 	            byte[] wr=DataUtils.getInstance().getSendSrpc(socket,msg);
 	            
+	            
+	            if(os==null)//可能网关断了，需要从网关列表删除，并停止相应socket
+	            {
+	            	GatewayBean gate=GatewayList.findByIP(socket.getInetAddress().getHostAddress());
+ 					if(gate!=null)
+ 					{
+ 						DataTransactionService.mHtGateway_Socket_Table.remove(gate.getSN());
+ 						GatewayList.remove(gate);
+ 						//停止监听线程
+ 						
+ 						try { 							
+ 							socket.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+ 						
+ 						
+ 					}
+ 					return;
+	            }
 	            //写入
 	            os.write(wr);
 	            
