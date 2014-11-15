@@ -14,6 +14,7 @@ public class ConstUtils {
 	public static String S_LOGIN_URL = S_API_URL + "/smartcenter/login";			//智能主机登录接口
 	public static String S_SYNC_DEVICE_URL = S_API_URL + "/device/deviceSync";		//设备同步接口
 	public static String S_POST_DATA_URL = S_API_URL + "/notice/new";		//提交设备上报数据
+	public static String S_GET_DEVICE_TYPE_URL = S_API_URL + "/deviceType/deviceTypeList";		//获取设备类型接口
 	
 	//UDP find gateway command
 	public final static String S_SEARCH_GATEWAY_COMMAND="GETIP\r\n";

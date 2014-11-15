@@ -52,7 +52,7 @@ public class DeviceTypeList {
 	//如果存在，增加失败
 	public static boolean add(DeviceTypeInfo deviceType)
 	{
-		String identification = deviceType.getIdentification();
+		String identification = deviceType.getCode();
 		if (!exists(identification))
 		{
 			synchronized (S_LOCK)
@@ -69,18 +69,18 @@ public class DeviceTypeList {
 	//如果存在，覆盖已有的
 	public static void put(DeviceTypeInfo deviceType)
 	{
-		String identification = deviceType.getIdentification();
+		String identification = deviceType.getCode();
 		synchronized (S_LOCK)
 		{
 			S_DEVICE_TYPES.put(identification, deviceType);
 		}
 	}
 	
-	public static DeviceTypeInfo getDeviceType(String identification)
+	public static DeviceTypeInfo getDeviceType(String code)
 	{
-		if (exists(identification))
+		if (exists(code))
 		{
-			return S_DEVICE_TYPES.get(identification);
+			return S_DEVICE_TYPES.get(code);
 		}
 		return null;
 	}

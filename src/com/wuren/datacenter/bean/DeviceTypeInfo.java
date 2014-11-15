@@ -2,38 +2,45 @@ package com.wuren.datacenter.bean;
 
 public class DeviceTypeInfo {
 
-	private int m_Id;
-	private String m_Identification;
+	private String m_Code;
 	private String m_Name;
-	
-	public int getId()
-	{
-		return m_Id;
+	private String m_Icon;
+	private String m_Type;
+
+	public String getCode() {
+		return m_Code;
 	}
-	
-	public void setId(int id)
-	{
-		m_Id = id;
+
+	public void setCode(String m_Code) {
+		this.m_Code = m_Code;
 	}
-	
-	public String getIdentification()
-	{
-		return m_Identification;
-	}
-	
-	public void setIdentification(String identification)
-	{
-		m_Identification = identification;
-	}
-	
-	public String getName()
-	{
+
+	public String getName() {
 		return m_Name;
 	}
+
+	public void setName(String m_Name) {
+		this.m_Name = m_Name;
+	}
 	
-	public void setName(String name)
+	public String getIcon()
 	{
-		m_Name = name;
+		return m_Icon;
+	}
+	
+	public void setIcon(String icon)
+	{
+		m_Icon = icon;
+	}
+	
+	public String getType()
+	{
+		return m_Type;
+	}
+	
+	public void setType(String type)
+	{
+		m_Type = type;
 	}
 
 }

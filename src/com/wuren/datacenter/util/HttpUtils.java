@@ -4,8 +4,11 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.wuren.datacenter.List.DeviceTypeList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
+import com.wuren.datacenter.bean.DeviceTypeInfo;
 
 import net.tsz.afinal.FinalHttp;
 import net.tsz.afinal.http.AjaxCallBack;
@@ -152,9 +155,10 @@ public class HttpUtils {
 
 	public static void getDeviceTypes(final HttpResponseListener callback)
 	{
+		String url = ConstUtils.S_GET_DEVICE_TYPE_URL + "?sid=" + GlobalContext.getInstance().S_LOGIN_SESSION;
+		
 		FinalHttp fh = getFinalHttp();
-
-		fh.post("", new AjaxCallBack<String>() {
+		fh.get(url, new AjaxCallBack<String>() {
 
 			@Override
 			public void onStart() {
@@ -183,14 +187,33 @@ public class HttpUtils {
 				boolean succ = false;
 				try
 				{
-					JSONObject loginObj = JSON.parseObject(t);
-					int code = loginObj.getIntValue("code");
+					JSONObject respObj = JSON.parseObject(t);
+					int code = respObj.getIntValue("code");
 					if (code == S_SUCC_CODE)
 					{
-						//TODO 解析数据
-//						S_DEVICE_TYPES.put("", value)
-
-						succ = true;
+						JSONObject resultObj = respObj.getJSONObject("result");
+						if (resultObj != null)
+						{
+							JSONArray arrDevTypes = resultObj.getJSONArray("deviceType.list");
+							if (arrDevTypes != null && arrDevTypes.size() > 0)
+							{
+								for (int i = 0; i < arrDevTypes.size(); i++)
+								{
+									JSONObject devTypeObj = arrDevTypes.getJSONObject(i);
+									if (devTypeObj != null)
+									{
+										DeviceTypeInfo devType = new DeviceTypeInfo();
+										devType.setCode(devTypeObj.getString("CODE"));
+										devType.setName(devTypeObj.getString("NAME"));
+										devType.setIcon(devTypeObj.getString("ICON"));
+										devType.setType(devTypeObj.getString("TYPE"));
+										DeviceTypeList.put(devType);
+									}
+								}
+							}
+							
+							succ = true;
+						}
 					}
 				}
 				catch (Exception exp)
@@ -209,7 +232,7 @@ public class HttpUtils {
 	//设备上线
 	public static void deviceOnline(DeviceInfoBean device, final HttpResponseListener callback)
 	{
-		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		String url = ConstUtils.S_GET_DEVICE_TYPE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();
 				  
