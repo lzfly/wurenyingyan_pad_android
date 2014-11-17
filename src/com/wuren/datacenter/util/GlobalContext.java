@@ -42,7 +42,10 @@ public class GlobalContext extends Application {
 							
 							if(succ)
 							{
-								//start get Camera thread.
+								//start seart Camera thread.
+								
+								//Initialize DeviceTypeList
+								HttpUtils.getDeviceTypes(null);
 							}
 						}
 						

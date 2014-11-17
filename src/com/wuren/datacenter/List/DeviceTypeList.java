@@ -29,12 +29,8 @@ public class DeviceTypeList {
 		public static final int Smoke_Sensor=0x0310;//烟雾
 		public static final int Dot_Matrix_Monitor=0x0340;//点阵显示器
 		public static final int Sound_Light_Alarm=0x0403;//声光报警器
-		
-		
-		
-		
-		
 	}
+	
 	private static Hashtable<String, DeviceTypeInfo> S_DEVICE_TYPES = new Hashtable<String, DeviceTypeInfo>();
 	
 	private static Object S_LOCK = new Object();
@@ -44,9 +40,9 @@ public class DeviceTypeList {
 		S_DEVICE_TYPES.clear();
 	}
 	
-	public static boolean exists(String identification)
+	public static boolean exists(String code)
 	{
-		return S_DEVICE_TYPES.containsKey(identification);
+		return S_DEVICE_TYPES.containsKey(code);
 	}
 	
 	//如果存在，增加失败

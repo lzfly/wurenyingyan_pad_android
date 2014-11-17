@@ -6,6 +6,7 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.igexin.sdk.PushManager;
 import com.wuren.datacenter.List.DeviceTypeList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.DeviceTypeInfo;
@@ -38,6 +39,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("sn", sn);
+		params.put("push_clientid", PushManager.getInstance().getClientid(GlobalContext.getInstance()));
 		
 		fh.post(ConstUtils.S_INIT_URL, params, new AjaxCallBack<String>() {
 
@@ -232,7 +234,7 @@ public class HttpUtils {
 	//设备上线
 	public static void deviceOnline(DeviceInfoBean device, final HttpResponseListener callback)
 	{
-		String url = ConstUtils.S_GET_DEVICE_TYPE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		String url = ConstUtils.S_SYNC_DEVICE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();
 				  
@@ -252,7 +254,6 @@ public class HttpUtils {
 			@Override
 			public void onStart() {
 				super.onStart();
-				
 				if (callback != null)
 				{
 					callback.onStart();
@@ -262,7 +263,6 @@ public class HttpUtils {
 			@Override
 			public void onFailure(Throwable t, int errorNo, String strMsg) {
 				super.onFailure(t, errorNo, strMsg);
-				
 				if (callback != null)
 				{
 					callback.onDone(false, null);
@@ -272,7 +272,6 @@ public class HttpUtils {
 			@Override
 			public void onSuccess(String t) {
 				super.onSuccess(t);
-				
 				boolean succ = false;
 				try
 				{
