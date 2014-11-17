@@ -1,5 +1,7 @@
 package com.wuren.datacenter.util;
 
+import com.igexin.sdk.PushManager;
+
 import android.app.Application;
 import android.app.ProgressDialog;
 
@@ -17,6 +19,8 @@ public class GlobalContext extends Application {
 		super.onCreate();
 		
 		S_INSTANCE = this;
+		
+		PushManager.getInstance().initialize(this.getApplicationContext());
 		
 		//final String devId = CommonUtils.getDeviceId(this);
 		final String devId = "351792055028994";
@@ -54,6 +58,11 @@ public class GlobalContext extends Application {
 			}
 			
 		});
+	}
+	
+	public String getPushClientId()
+	{
+		return PushManager.getInstance().getClientid(this);		
 	}
 	
 	public static GlobalContext getInstance()

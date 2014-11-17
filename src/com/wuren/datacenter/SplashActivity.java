@@ -37,9 +37,6 @@ public class SplashActivity extends Activity {
 		}
 		//jiaojc
 		
-		PushManager.getInstance().initialize(this.getApplicationContext());
-		
-		
 		Intent intent = new Intent(SplashActivity.this, DataTransactionService.class);
 		SplashActivity.this.startService(intent);
 		

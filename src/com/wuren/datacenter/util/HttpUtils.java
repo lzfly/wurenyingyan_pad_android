@@ -39,7 +39,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("sn", sn);
-		params.put("push_clientid", PushManager.getInstance().getClientid(GlobalContext.getInstance()));
+		params.put("push_clientid", GlobalContext.getInstance().getPushClientId());
 		
 		fh.post(ConstUtils.S_INIT_URL, params, new AjaxCallBack<String>() {
 
