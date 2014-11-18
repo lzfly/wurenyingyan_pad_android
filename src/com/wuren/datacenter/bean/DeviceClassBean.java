@@ -1,6 +1,6 @@
 package com.wuren.datacenter.bean;
 
-public class DeviceTypeInfo {
+public class DeviceClassBean {
 
 	private String m_Code;
 	private String m_Name;

@@ -11,10 +11,10 @@ import java.util.Hashtable;
 import java.util.List;
 
 import com.wuren.datacenter.List.DeviceList;
-import com.wuren.datacenter.List.DeviceTypeList;
+import com.wuren.datacenter.List.DeviceClassList;
 import com.wuren.datacenter.List.GatewayList;
 import com.wuren.datacenter.bean.DeviceInfoBean;
-import com.wuren.datacenter.bean.DeviceTypeInfo;
+import com.wuren.datacenter.bean.DeviceClassBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.devicehandler.InvadeDeviceHandler;
 import com.wuren.datacenter.util.CommonUtils;
@@ -635,12 +635,12 @@ public class ServiceSocketMonitor implements Runnable {
             	
             	if(msgUpload.length()!=0)
             	{
-            		Date occurTime=device.getEventTime();                    
+            		Date occurTime=device.getEventTime();
+            		DeviceClassBean class_info=DeviceClassList.getDeviceType( device.getDeviceType());
                     if(occurTime==null)
                     {
-                    	device.setEventTime(nowTime);
-                    	DeviceTypeInfo type_info=DeviceTypeList.getDeviceType( device.getDeviceType());
-                		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, type_info.getType(), null);
+                    	device.setEventTime(nowTime);                    	
+                		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), null);
                     }
                     else
                     {
@@ -648,8 +648,7 @@ public class ServiceSocketMonitor implements Runnable {
 	            		if(inteval>ConstUtils.DEVICE_EVENT_OCCUR_TIME)
 	            		{
 	            			device.setEventTime(nowTime);
-	            			DeviceTypeInfo type_info=DeviceTypeList.getDeviceType( device.getDeviceType());
-	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, type_info.getType(), null);
+	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), null);
 	            		}
                     }
             	}
@@ -829,13 +828,13 @@ public class ServiceSocketMonitor implements Runnable {
 		int typeValue = Integer.parseInt(deviceType.replaceAll("^0[x|X]", ""), 16);
 		
 		
-		Log.v("jiaojc","into method getUploadMessage deviceType:"+deviceType+"\tvalue:"+value);
+//		Log.v("jiaojc","into method getUploadMessage deviceType:"+deviceType+"\tvalue:"+value);
 		
 		String result="";
 		switch(typeValue)
 		{
-		case DeviceTypeList.Type.Occupancy_Sensor://红外
-		case DeviceTypeList.Type.Gas_Sensor://Gas
+		case DeviceClassList.Type.Occupancy_Sensor://红外
+		case DeviceClassList.Type.Gas_Sensor://Gas
 			
 			if(value!=0)//有人，此时需要组织数据传递到服务器上
 			{

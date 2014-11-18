@@ -14,6 +14,8 @@ public class GlobalContext extends Application {
 	public static boolean S_LOGINED = false;
 	public static String S_LOGIN_SESSION = "";
 	
+	public static String S_SMARTCENTER_SN;
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -23,8 +25,8 @@ public class GlobalContext extends Application {
 		PushManager.getInstance().initialize(this.getApplicationContext());
 		
 		//final String devId = CommonUtils.getDeviceId(this);
-		final String devId = "351792055028994";
-		HttpUtils.init(devId, new HttpUtils.HttpResponseListener() {
+		S_SMARTCENTER_SN = "351792055028994";
+		HttpUtils.init(S_SMARTCENTER_SN, new HttpUtils.HttpResponseListener() {
 			
 			@Override
 			public void onStart() {
@@ -35,7 +37,7 @@ public class GlobalContext extends Application {
 				if (succ)
 				{
 					
-					HttpUtils.login(devId, S_PASS, new HttpUtils.HttpResponseListener() {
+					HttpUtils.login(S_SMARTCENTER_SN, S_PASS, new HttpUtils.HttpResponseListener() {
 						
 						@Override
 						public void onStart() {
@@ -50,6 +52,10 @@ public class GlobalContext extends Application {
 								
 								//Initialize DeviceTypeList
 								HttpUtils.getDeviceTypes(null);
+								
+								HttpUtils.getCameraList(null);
+								
+							
 							}
 						}
 						

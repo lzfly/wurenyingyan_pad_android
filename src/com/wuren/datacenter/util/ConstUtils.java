@@ -1,5 +1,8 @@
 package com.wuren.datacenter.util;
 
+import java.io.File;
+
+
 import android.os.Environment;
 
 public class ConstUtils {
@@ -15,6 +18,10 @@ public class ConstUtils {
 	public static String S_SYNC_DEVICE_URL = S_API_URL + "/device/deviceSync";		//设备同步接口
 	public static String S_POST_DATA_URL = S_API_URL + "/notice/new";		//提交设备上报数据
 	public static String S_GET_DEVICE_TYPE_URL = S_API_URL + "/deviceType/deviceTypeList";		//获取设备类型接口
+	
+	public static String S_UPLOAD_PICTURE_URL = S_API_URL + "/camera/uploadCameraScreenshot";//上传拍摄的照片接口	
+	
+	public static String S_GET_CAMERS_URL = S_API_URL + "/camera/cameraList";		//获取摄像列表
 	
 	//UDP find gateway command
 	public final static String S_SEARCH_GATEWAY_COMMAND="GETIP\r\n";
@@ -34,8 +41,11 @@ public class ConstUtils {
 	public final static String G_APK_NAME = "DataCenter";
 	
 	
+	public  final static int CAPTURE_PICTURE_NUM=5;
+	
 	public static final String G_GLOABAL_PATH=  Environment.getExternalStorageDirectory()+"/"+G_APK_NAME;
 	
+	public  static String G_IMAGE_PATH=ConstUtils.G_GLOABAL_PATH+File.separator+"jietu";
 	
 	
 

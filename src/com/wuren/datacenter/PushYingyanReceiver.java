@@ -1,11 +1,19 @@
 package com.wuren.datacenter;
 
+import java.io.File;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.igexin.sdk.PushConsts;
+import com.wuren.datacenter.devicehandler.ShiJieCameraReceiver;
+import com.wuren.datacenter.util.ConstUtils;
+import com.wuren.datacenter.util.ShiJieUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 
 public class PushYingyanReceiver extends BroadcastReceiver{
@@ -22,13 +30,44 @@ public class PushYingyanReceiver extends BroadcastReceiver{
 				    byte[] payload = bundle.getByteArray("payload");
 				    if (payload != null)
 				    {
-				     String data = new String(payload);
-				     Log.d("jiaojc", "Got Payload:" + data);
-				     
+				    	
+				    	
+					     
+					     String data = new String(payload);
+					     
+					     String decode_data=new String(Base64.decode(payload, 0, payload.length, Base64.DEFAULT));
+					     Log.d("jiaojc", "Got Payload base64:" + data);
+					     Log.d("jiaojc", "Got Payload decode:" + decode_data);
+					     
+					     
+					     JSONObject Obj = JSON.parseObject(decode_data);
+					     String actionType= Obj.getString("actionType");
+					     
+					     Log.d("jiaojc", "actionType:"+actionType );
+					     if(actionType.equals("camera_screenshot"))
+					     {   
+					    	 
+					    	 JSONObject camerInfoObj = Obj.getJSONObject("cameraInfo");
+					    	 if(camerInfoObj!=null)
+					    	 {
+					    		 String cameraSN=camerInfoObj.getString("cameraSN");
+					    		 String user=camerInfoObj.getString("from");					    		 					    		 
+					    		 Intent it=new Intent(ShiJieCameraReceiver.CaptureImageAction);
+					    		 it.putExtra("cameraSN", cameraSN);
+					    		 it.putExtra("user", user);
+								 context.sendBroadcast(it);								 
+					    	 }
+					     }
+					     
+							
+							
+					     
 				     //将data进行JSON解析
 				     //1 消息类型 2参数值
 				     
-				     
+//				     //ShiJieUtils.Capture("192.168.1.35", "10080", ConstUtils.G_IMAGE_PATH+File.separator+"image.jpg");
+//				     Intent it=new Intent(ShiJieCameraReceiver.CaptureImageAction);
+//				     context.sendBroadcast(it);
 				     // TODO:payload
 				    }
 				    break;

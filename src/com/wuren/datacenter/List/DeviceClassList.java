@@ -2,9 +2,9 @@ package com.wuren.datacenter.List;
 
 import java.util.Hashtable;
 
-import com.wuren.datacenter.bean.DeviceTypeInfo;
+import com.wuren.datacenter.bean.DeviceClassBean;
 
-public class DeviceTypeList {
+public class DeviceClassList {
 
 	public class Type{
 		
@@ -31,7 +31,7 @@ public class DeviceTypeList {
 		public static final int Sound_Light_Alarm=0x0403;//声光报警器
 	}
 	
-	private static Hashtable<String, DeviceTypeInfo> S_DEVICE_TYPES = new Hashtable<String, DeviceTypeInfo>();
+	private static Hashtable<String, DeviceClassBean> S_DEVICE_TYPES = new Hashtable<String, DeviceClassBean>();
 	
 	private static Object S_LOCK = new Object();
 	
@@ -46,7 +46,7 @@ public class DeviceTypeList {
 	}
 	
 	//如果存在，增加失败
-	public static boolean add(DeviceTypeInfo deviceType)
+	public static boolean add(DeviceClassBean deviceType)
 	{
 		String identification = deviceType.getCode();
 		if (!exists(identification))
@@ -63,7 +63,7 @@ public class DeviceTypeList {
 	}
 	
 	//如果存在，覆盖已有的
-	public static void put(DeviceTypeInfo deviceType)
+	public static void put(DeviceClassBean deviceType)
 	{
 		String identification = deviceType.getCode();
 		synchronized (S_LOCK)
@@ -72,7 +72,7 @@ public class DeviceTypeList {
 		}
 	}
 	
-	public static DeviceTypeInfo getDeviceType(String code)
+	public static DeviceClassBean getDeviceType(String code)
 	{
 		if (exists(code))
 		{

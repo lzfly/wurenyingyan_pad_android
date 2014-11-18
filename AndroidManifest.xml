@@ -42,6 +42,16 @@
             android:label="@string/title_activity_device"
             android:screenOrientation="portrait" >
         </activity>
+        
+        
+        <receiver android:name=".devicehandler.ShiJieCameraReceiver" >
+            <intent-filter>
+                <action android:name="com.5ren.qianliyan.SHIJIE_CAPTURE_IMAGE" />
+                <action android:name="com.5ren.qianliyan.SHIJIE_CAPTURE_ZIP" />
+                
+            </intent-filter>
+        </receiver>
+        
 
         <service
             android:name=".service.DataTransactionService"
@@ -55,7 +65,7 @@
 	     <!-- action android:name="com.igexin.sdk.action.APPID" -->
 	      <action android:name="com.igexin.sdk.action.JAlsuoOtgg7yGyghqlYuE8" />
 	     </intent-filter>
-</receiver>
+	</receiver>
 
         
         

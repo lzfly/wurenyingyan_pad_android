@@ -1,6 +1,7 @@
 package com.wuren.datacenter.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -13,6 +14,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
@@ -26,6 +29,12 @@ public class ShiJieUtils {
 	      try{
 	    	 
 	    	  FileOutputStream imageOutput = new FileOutputStream(new File(path));
+	    	  
+//	    	  BitmapFactory.Options options = new BitmapFactory.Options();  
+//	  		  options.inJustDecodeBounds=true;
+//	    	  BitmapFactory.decodeStream(new FileInputStream(new File(path)),null,options);
+//	    	  options.inSampleSize = ImageUtils.computeSampleSize(options, -1, 128*128); 
+	    	  
 		      imageOutput.write(data, 0, data.length);
 		      imageOutput.close();
 		      System.out.println("Make Picture success,Please find image in " + path);
@@ -38,15 +47,15 @@ public class ShiJieUtils {
 	    }
 	  
 	
-	public static void Capture( String address,String port,String fileFullPathName)
+	public static boolean Capture( String address,String port,String fileFullPathName)
 	{		
 		String username="admin";
 		String password="admin";
 		int channel=1;		
-		Capture(address,port,fileFullPathName,username,password,channel);			
+		return Capture(address,port,fileFullPathName,username,password,channel);			
 	}
 	
-	public static void Capture( String address,String port,String fileFullPathName,String username,String password,int channel)
+	public static boolean Capture( String address,String port,String fileFullPathName,String username,String password,int channel)
 	{
 		
 		
@@ -76,8 +85,10 @@ public class ShiJieUtils {
 					byte[] result = null; 
 					Log.v(TAG,"request image OK");
 					result = EntityUtils.toByteArray(a);
-					//byte2image(result,ConstUtils.G_LAST_IMAGE_PATH);				
-					byte2image(result,fileFullPathName);
+									
+					byte2image(result,fileFullPathName);					
+					Bitmap image=ImageUtils.getThumbnails(fileFullPathName);					
+					return ImageUtils.bmp2file(image, fileFullPathName);					
 				}
 				else
 				{									
@@ -96,7 +107,10 @@ public class ShiJieUtils {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}										
+		}		
+		return false;
+		
+	
 	}
 	
 	
