@@ -1,30 +1,20 @@
 package com.wuren.datacenter.util;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.Hashtable;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import android.text.TextUtils;
@@ -33,7 +23,6 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.igexin.sdk.PushManager;
 import com.wuren.datacenter.List.CameraList;
 import com.wuren.datacenter.List.DeviceClassList;
 import com.wuren.datacenter.bean.CameraInfoBean;
@@ -190,6 +179,92 @@ public class HttpUtils {
 		
 	}
 	
+	
+	public static Hashtable<String, String> S_BIND_CAMERAS = new Hashtable<String, String>();
+	public static void getBindCamera(final String deviceSN, final HttpResponseListener callback)
+	{
+		if (S_BIND_CAMERAS.containsKey(deviceSN))
+		{
+			if (callback != null)
+			{
+				callback.onDone(true, null);
+			}
+		}
+		else
+		{
+			String url = ConstUtils.S_GET_BIND_CAMERA_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+			
+			FinalHttp fh = getFinalHttp();
+			
+			AjaxParams params = new AjaxParams();
+			params.put("device_sn", deviceSN);
+			
+			fh.post(url, params, new AjaxCallBack<String>() {
+	
+				@Override
+				public void onStart() {
+					super.onStart();
+					
+					if (callback != null)
+					{
+						callback.onStart();
+					}
+				}
+	
+				@Override
+				public void onFailure(Throwable t, int errorNo, String strMsg) {
+					super.onFailure(t, errorNo, strMsg);
+					
+					if (callback != null)
+					{
+						callback.onDone(false, null);
+					}
+				}
+	
+				@Override
+				public void onSuccess(String t) {
+					super.onSuccess(t);
+					
+					boolean succ = false;
+					try
+					{
+						JSONObject respObj = JSON.parseObject(t);
+						int code = respObj.getIntValue("code");
+						if (code == S_SUCC_CODE)
+						{
+							JSONObject resultObj = respObj.getJSONObject("result");
+							if (resultObj != null)
+							{
+								JSONObject devBindCameraObj = resultObj.getJSONObject("deviceBindCamera");
+								if (devBindCameraObj != null)
+								{
+									String devSN = devBindCameraObj.getString("DEVICE_SN");
+									if (deviceSN.equals(devSN))
+									{
+										String cameraSN = devBindCameraObj.getString("CAMERA_SN");
+										if (CameraList.exists(cameraSN))
+										{
+											S_BIND_CAMERAS.put(devSN, cameraSN);
+											succ = true;
+										}
+									}
+								}
+							}
+						}
+					}
+					catch (Exception exp)
+					{
+					}
+					
+					if (callback != null)
+					{
+						callback.onDone(succ, null);
+					}
+				}
+				
+			});
+		}
+	}
 	
 	public static void getDeviceTypes(final HttpResponseListener callback)
 	{
