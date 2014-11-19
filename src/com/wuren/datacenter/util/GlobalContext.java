@@ -55,7 +55,7 @@ public class GlobalContext extends Application {
 								
 								HttpUtils.getCameraList(null);
 								
-							
+								HttpUtils.getBindCameraList(null);
 							}
 						}
 						

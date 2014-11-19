@@ -19,6 +19,7 @@ public class ConstUtils {
 	public static String S_POST_DATA_URL = S_API_URL + "/notice/new";		//提交设备上报数据
 	public static String S_GET_DEVICE_TYPE_URL = S_API_URL + "/deviceType/deviceTypeList";		//获取设备类型接口
 	public static String S_GET_BIND_CAMERA_URL = S_API_URL + "/device/getBindCamera";		//获取设备绑定的摄像头
+	public static String S_GET_BIND_CAMERA_LIST_URL = S_API_URL + "/device/getBindCameraList";		//获取所有设备绑定的摄像头
 	
 	public static String S_UPLOAD_PICTURE_URL = S_API_URL + "/camera/uploadCameraScreenshot";//上传拍摄的照片接口	
 	

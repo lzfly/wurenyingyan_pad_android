@@ -24,6 +24,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.wuren.datacenter.List.CameraList;
+import com.wuren.datacenter.List.DeviceBindCameraList;
 import com.wuren.datacenter.List.DeviceClassList;
 import com.wuren.datacenter.bean.CameraInfoBean;
 import com.wuren.datacenter.bean.DeviceInfoBean;
@@ -179,11 +180,81 @@ public class HttpUtils {
 		
 	}
 	
+	public static void getBindCameraList(final HttpResponseListener callback)
+	{
+		String url = ConstUtils.S_GET_BIND_CAMERA_LIST_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
+		
+		FinalHttp fh = getFinalHttp();
+		fh.post(url, new AjaxCallBack<String>() {
+
+			@Override
+			public void onStart() {
+				super.onStart();
+				
+				if (callback != null)
+				{
+					callback.onStart();
+				}
+			}
+
+			@Override
+			public void onFailure(Throwable t, int errorNo, String strMsg) {
+				super.onFailure(t, errorNo, strMsg);
+				
+				if (callback != null)
+				{
+					callback.onDone(false, null);
+				}
+			}
+
+			@Override
+			public void onSuccess(String t) {
+				super.onSuccess(t);
+				
+				boolean succ = false;
+				try
+				{
+					JSONObject respObj = JSON.parseObject(t);
+					int code = respObj.getIntValue("code");
+					if (code == S_SUCC_CODE)
+					{
+						JSONObject resultObj = respObj.getJSONObject("result");
+						if (resultObj != null)
+						{
+							JSONArray arrDevBindCamera = resultObj.getJSONArray("deviceBindCamera.list");
+							if (arrDevBindCamera != null && arrDevBindCamera.size() > 0)
+							{
+								for (int i = 0; i < arrDevBindCamera.size(); i++)
+								{
+									JSONObject devBindCameraObj = arrDevBindCamera.getJSONObject(i);
+									if (devBindCameraObj != null)
+									{
+										DeviceBindCameraList.put(devBindCameraObj.getString("DEVICE_SN"),
+												devBindCameraObj.getString("CAMERA_SN"));
+									}
+								}
+								
+								succ = true;
+							}
+						}
+					}
+				}
+				catch (Exception exp)
+				{
+				}
+				
+				if (callback != null)
+				{
+					callback.onDone(succ, null);
+				}
+			}
+			
+		});
+	}
 	
-	public static Hashtable<String, String> S_BIND_CAMERAS = new Hashtable<String, String>();
 	public static void getBindCamera(final String deviceSN, final HttpResponseListener callback)
 	{
-		if (S_BIND_CAMERAS.containsKey(deviceSN))
+		if (DeviceBindCameraList.exists(deviceSN))
 		{
 			if (callback != null)
 			{
@@ -244,7 +315,7 @@ public class HttpUtils {
 										String cameraSN = devBindCameraObj.getString("CAMERA_SN");
 										if (CameraList.exists(cameraSN))
 										{
-											S_BIND_CAMERAS.put(devSN, cameraSN);
+											DeviceBindCameraList.put(devSN, cameraSN);
 											succ = true;
 										}
 									}
