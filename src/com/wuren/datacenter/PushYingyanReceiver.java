@@ -30,15 +30,12 @@ public class PushYingyanReceiver extends BroadcastReceiver{
 				    byte[] payload = bundle.getByteArray("payload");
 				    if (payload != null)
 				    {
-				    	
-				    	
-					     
-					     String data = new String(payload);
+				    
+				    	String data = new String(payload);
 					     
 					     String decode_data=new String(Base64.decode(payload, 0, payload.length, Base64.DEFAULT));
 					     Log.d("jiaojc", "Got Payload base64:" + data);
 					     Log.d("jiaojc", "Got Payload decode:" + decode_data);
-					     
 					     
 					     JSONObject Obj = JSON.parseObject(decode_data);
 					     String actionType= Obj.getString("actionType");
@@ -58,6 +55,21 @@ public class PushYingyanReceiver extends BroadcastReceiver{
 								 context.sendBroadcast(it);								 
 					    	 }
 					     }
+//					     else if(actionType.equals("camera_5lianpai"))
+//					     {
+//					    	 JSONObject camerInfoObj = Obj.getJSONObject("cameraInfo");
+//					    	 if(camerInfoObj!=null)
+//					    	 {
+//					    		 String cameraSN=camerInfoObj.getString("cameraSN");
+//					    		 String num=camerInfoObj.getString("num");
+//					    		 String notice_code=camerInfoObj.getString("notice_code");
+//					    		 Intent it=new Intent(ShiJieCameraReceiver.CaptureZIPAction);
+//					    		 it.putExtra("cameraSN", cameraSN);
+//					    		 it.putExtra("num", num);
+//					    		 it.putExtra("notice_code", notice_code);
+//								 context.sendBroadcast(it);								 
+//					    	 }
+//					     }
 					     
 							
 							

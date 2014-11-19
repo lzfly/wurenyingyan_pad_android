@@ -52,11 +52,15 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 			
 			Log.v(TAG,"requeset camera SN:"+cameraSN);
 			CameraInfoBean camera=CameraList.getCamera(cameraSN);
+			
+			Date nowDate=new Date();
+			SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyyMMddHHmmss");
+			String strOcurDateForFile=simpleDateFormat.format(nowDate);
+		
+			
 			if(camera!=null)
 			{				
 				
-				SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyyMMddHHmmss");
-				String strOcurDateForFile=simpleDateFormat.format(new Date());
 				
 				String imageName=user+"_"+cameraSN+"_"+strOcurDateForFile+".jpg";
 				
@@ -72,6 +76,39 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 		}
 		if(intent.getAction().equals(CaptureZIPAction))
 		{
+			
+			
+   		 
+			String cameraSN=intent.getStringExtra("cameraSN");
+			String num=intent.getStringExtra("num");
+			String notice_code=intent.getStringExtra("notice_code");
+			
+			Log.v(TAG,"requeset camera SN:"+cameraSN);
+			CameraInfoBean camera=CameraList.getCamera(cameraSN);
+			
+			Date nowDate=new Date();
+			SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyyMMddHHmmss");
+			String strOcurDateForFile=simpleDateFormat.format(nowDate);
+		
+			
+//			if(camera!=null)
+//			{				
+//				
+//				
+//				String imageName=user+"_"+cameraSN+"_"+strOcurDateForFile+".jpg";
+//				
+//				String path=ConstUtils.G_IMAGE_PATH+File.separator+imageName;
+//
+//				new Thread(new CaptureImageRequest(camera,user,path)).start(); 
+//				
+//			}
+//			else
+//			{
+//				Log.v(TAG,"Camera is not exist!");
+//			}
+
+			
+			
 
 			//String sensorAddr = intent.getStringExtra("sensor_addr");
 			//if (HttpUtils.S_BIND_CAMERA.containsKey(sensorAddr))

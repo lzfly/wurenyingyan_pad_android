@@ -267,7 +267,7 @@ public class HttpUtils {
 		});
 	}
 	
-	
+	//获得摄像头列表
 	public static void getCameraList(final HttpResponseListener callback)
 	{
 		String url = ConstUtils.S_GET_CAMERS_URL + "?sid=" + GlobalContext.getInstance().S_LOGIN_SESSION;
@@ -549,46 +549,7 @@ public class HttpUtils {
 		});
 	}
 	
-//	{
-//		Log.v("jiaojc","into appclient upload methods");
-//		try {
-//			HttpPost httpPost = headerFilter(new HttpPost(this.apiUrl));
-//			List<NameValuePair> postParams = new ArrayList<NameValuePair>();
-//			// get post parameters
-//			Iterator it = urlParams.entrySet().iterator();
-//			while (it.hasNext()) {
-//				Map.Entry entry = (Map.Entry) it.next();
-//				Log.v("jiaojc","key:"+entry.getKey().toString()+"\tvalue:"+entry.getValue().toString());
-//				
-//				postParams.add(new BasicNameValuePair(entry.getKey().toString(), entry.getValue().toString()));
-//			}
-//			
-//			String image_path=urlParams.get("zip_path").toString();
-//	
-//			//String ss=Environment.getExternalStorageDirectory()+"/"+"3.jpg";
-//			File fileTemp=new File(image_path);
-//			FileBody bin = new FileBody(fileTemp);
-//			MultipartEntity reqEntity = new MultipartEntity();
-//			reqEntity.addPart("upload", bin);// upload为请求后台的File upload属性
-//
-//			httpPost.setEntity(reqEntity);
-//			
-//			Log.w("AppClient.post.url", this.apiUrl);
-//			HttpResponse httpResponse = httpClient.execute(httpPost);
-//			if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-//				String httpResult = resultFilter(httpResponse.getEntity());
-//				Log.w("AppClient.post.result", httpResult);
-//				return httpResult;
-//			} else {
-//				return null;
-//			}
-//		} catch (ConnectTimeoutException e) {
-//			throw new Exception(C.err.network);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
+
 	
 	public static String uploadPicture(String camera_sn,String user,String image_path,final HttpResponseListener callback)
 	{
@@ -612,26 +573,11 @@ public class HttpUtils {
 		
 		HttpPost httpPost = new HttpPost(url);
 		
-		List<NameValuePair> postParams = new ArrayList<NameValuePair>();
-		postParams.add(new BasicNameValuePair("camera_sn",camera_sn));
-		postParams.add(new BasicNameValuePair("to_user",user));
-		
-		
-		
-//		try {
-//			httpPost.setEntity(new UrlEncodedFormEntity(postParams, HTTP.UTF_8));
-//		} catch (UnsupportedEncodingException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-		
-		
 		
 		File fileTemp=new File(image_path);
 		FileBody bin = new FileBody(fileTemp);
 		MultipartEntity reqEntity = new MultipartEntity();
 		reqEntity.addPart("upload", bin);// upload为请求后台的File upload属性
-	//	reqEntity.addPart(postParams);
 		httpPost .setEntity(reqEntity);
 		
 		HttpResponse httpResponse;
@@ -658,88 +604,67 @@ public class HttpUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return null;						
+	}
+		
+
+	//上传zip file
+	public static String uploadZipFile(String camera_sn,String notice_id,String zip_path,final HttpResponseListener callback)
+	{
+		String url = ConstUtils.S_UPLOAD_PICTURE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION ;
+		
+		String afterurl="&camera_sn="+camera_sn+"&notice_id="+notice_id;
+		
+		url+=afterurl;
 		
 		
 		
-}
+		// set client timeout
+		HttpParams httpParams = new BasicHttpParams();
+		int timeoutConnection = 10000;
+		int timeoutSocket = 10000;
+		HttpConnectionParams.setConnectionTimeout(httpParams, timeoutConnection);
+		HttpConnectionParams.setSoTimeout(httpParams, timeoutSocket);
+		// init client
+		HttpClient httpClient = new DefaultHttpClient(httpParams);
 		
-	//上传图片
-//	public static void uploadPicture(String camera_sn,String user,String image_path,final HttpResponseListener callback)
-//	{
-//		String url = ConstUtils.S_UPLOAD_PICTURE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
-//		
-//		FinalHttp fh = getFinalHttp();
-//		
-//		
-//		AjaxParams params = new AjaxParams();
-//		params.put("camera_sn", camera_sn);
-//		params.put("to_user", user);
-//		
-//		File fileTemp=new File(image_path);
-//		
-////		FileBody bin = new FileBody(fileTemp);		
-////		MultipartEntity reqEntity = new MultipartEntity();
-////		reqEntity.addPart("upload", bin);// upload为请求后台的File upload属性
-////		
-//		try {
-//			params.put("file", fileTemp);
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//		fh.post(url, params, new AjaxCallBack<String>() {
-//
-//			@Override
-//			public void onStart() {
-//				super.onStart();
-//				
-//				Log.v("jiaojc","uploadPicture---onStart");
-//				if (callback != null)
-//				{
-//					
-//					callback.onStart();
-//				}
-//			}
-//
-//			@Override
-//			public void onFailure(Throwable t, int errorNo, String strMsg) {
-//				super.onFailure(t, errorNo, strMsg);
-//				Log.v("jiaojc","uploadPicture---onFailure");
-//				if (callback != null)
-//				{
-//					callback.onDone(false, null);
-//				}
-//			}
-//
-//			@Override
-//			public void onSuccess(String t) {
-//				super.onSuccess(t);
-//				
-//				boolean succ = false;
-//				try
-//				{
-//					JSONObject loginObj = JSON.parseObject(t);
-//					int code = loginObj.getIntValue("code");
-//					if (code == S_SUCC_CODE)
-//					{
-//						Log.v("jiaojc","uploadPicture---S_SUCC_CODE");
-//						succ = true;
-//					}
-//				}
-//				catch (Exception exp)
-//				{
-//				}
-//				
-//				if (callback != null)
-//				{
-//					callback.onDone(succ, null);
-//				}
-//			}
-//			
-//		});
-//	}
+		
+		HttpPost httpPost = new HttpPost(url);
+		
+		
+		File fileTemp=new File(zip_path);
+		FileBody bin = new FileBody(fileTemp);
+		MultipartEntity reqEntity = new MultipartEntity();
+		reqEntity.addPart("upload", bin);// upload为请求后台的File upload属性
+		httpPost .setEntity(reqEntity);
+		
+		HttpResponse httpResponse;
+		try {
+			httpResponse = httpClient.execute(httpPost);
+			
+			Log.w("jiaojc", "zip upload--result--before:"+httpResponse.getStatusLine().getStatusCode());
+			
+			if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
+			{				
+				String httpResult = EntityUtils.toString(httpResponse.getEntity());
+				Log.w("jiaojc", "zip upload--result:"+httpResult);
+				return httpResult;
+			} else {
+				Log.w("jiaojc", "zip upload--result:"+httpResponse.getStatusLine().getStatusCode());
+				return null;
+			}
+			
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;						
+	}
+	
+	
 
 	
 	//提交设备实时数据（报警，温/湿度，颜色，亮度等等）

@@ -13,7 +13,6 @@ import android.util.Log;
 
 public class ImageUtils {
 
-
 	public static Bitmap getThumbnails(String path) 
 	{
 		
@@ -23,7 +22,6 @@ public class ImageUtils {
 		//options.inSampleSize = computeSampleSize(options, -1, 128*128);
 		
 		int be = options.outHeight/200;  
-		Log.v("jiaojc","getThumbnails:"+options.outHeight+"\tbe:"+be);
 		
         if (be <= 0) {  
             be = 10;  
@@ -39,7 +37,8 @@ public class ImageUtils {
 	}
 	
 	 static boolean  bmp2file(Bitmap bmp,String full_path){  
-         CompressFormat format= Bitmap.CompressFormat.JPEG;  
+		 
+        CompressFormat format= Bitmap.CompressFormat.JPEG;  
         int quality = 60;  
         OutputStream stream = null;  
         try {  
