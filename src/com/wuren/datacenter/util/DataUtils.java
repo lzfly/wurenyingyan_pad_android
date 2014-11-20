@@ -161,36 +161,9 @@ public static final class FbeeControlCommand{
 	            byte[] wr=DataUtils.getInstance().getSendSrpc(socket,msg);
 	            
 	            
-	            if(os==null)//可能网关断了，需要从网关列表删除，并停止相应socket
+	            if(os==null|| wr==null)//可能网关断了，需要从网关列表删除，并停止相应socket
 	            {
-	            	GatewayBean gate=GatewayList.findByIP(socket.getInetAddress().getHostAddress());
- 					if(gate!=null)
- 					{
- 						DataTransactionService.mHtGateway_Socket_Table.remove(gate.getSN());
- 						GatewayList.remove(gate);
- 						//停止监听线程
- 						
- 						try { 							
- 							socket.close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
- 						
- 						
- 						//将与该网关相关联的设备都置下线状态
- 						List<DeviceInfoBean> listDevices=DeviceList.getDeviceList(gate);	 						
- 						if(listDevices!=null && listDevices.size()>0)
- 						{
- 							for(int i=0;i<listDevices.size();i++)
- 							{
- 								DeviceInfoBean itemDevice=listDevices.get(i);
- 								itemDevice.setIsOnline(false);
- 								HttpUtils.deviceOffline(itemDevice, null);
- 							}
- 						}
- 						
- 					}
+	            	DataTransactionService.removeSocket(socket);
  					return;
 	            }
 	            //写入
@@ -201,10 +174,14 @@ public static final class FbeeControlCommand{
 	              
 	        } catch (UnknownHostException e) {  
 	            // TODO Auto-generated catch block  
-	            e.printStackTrace();  
+	        	Log.v("jiaojc","UnknownHostException "+e.getMessage());
+	            //e.printStackTrace();  
+	            DataTransactionService.removeSocket(socket);
 	        } catch (IOException e) {  
 	            // TODO Auto-generated catch block  
-	            e.printStackTrace();  
+	            //e.printStackTrace();
+	        	Log.v("jiaojc","IOException "+e.getMessage());
+	            DataTransactionService.removeSocket(socket);
 	        }
 	}
 	

@@ -12,6 +12,7 @@ import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 import com.wuren.datacenter.util.FebeeAPI;
+import com.wuren.datacenter.util.HttpUtils;
 
 import android.content.Context;
 import android.content.Intent;
@@ -42,7 +43,11 @@ public class SearchGatewayThread extends Thread{
     	while(true)
     	{
     		search();
+    		
+    		
     		SystemClock.sleep(SEARCH_INTEVAL_SECOND*1000);
+    		
+    		
     	}
     	
     } 
@@ -69,11 +74,14 @@ public class SearchGatewayThread extends Thread{
             broadcastAddr = InetAddress.getByName("255.255.255.255");  
             dataPacket.setAddress(broadcastAddr);
             
-            Log.v(LOG_TAG,"begin send command:"+mDataString);
+            Log.v(LOG_TAG,"begin send search command:"+mDataString);
             
             mUdpSocket.send(dataPacket);
         } catch (Exception e) {  
-            Log.e(LOG_TAG, e.toString());  
+            Log.e(LOG_TAG, "send search command failed. "+e.toString());  
+            if(mUdpSocket!=null)
+      	      mUdpSocket.close();
+            return;
         } 
     
         Log.v(LOG_TAG,"begin receive command...");
@@ -230,6 +238,10 @@ public class SearchGatewayThread extends Thread{
     {
     	//开始搜索飞比网关
     	searchFebee();
+    	
+    	HttpUtils.getDeviceClass(null);			
+		HttpUtils.getCameraList(null);			
+		HttpUtils.getBindCameraList(null);
     }
 
 }

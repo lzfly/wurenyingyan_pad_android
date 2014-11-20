@@ -5,21 +5,26 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
+import com.wuren.datacenter.List.DeviceBindCameraList;
 import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.DeviceClassList;
 import com.wuren.datacenter.List.GatewayList;
+import com.wuren.datacenter.bean.CameraInfoBean;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.bean.DeviceClassBean;
 import com.wuren.datacenter.bean.GatewayBean;
 import com.wuren.datacenter.devicehandler.InvadeDeviceHandler;
+import com.wuren.datacenter.devicehandler.ShiJieCameraReceiver;
 import com.wuren.datacenter.util.CommonUtils;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
+import com.wuren.datacenter.util.DbDeviceState;
 import com.wuren.datacenter.util.DeviceListener;
 import com.wuren.datacenter.util.GatewayListener;
 import com.wuren.datacenter.util.HttpUtils;
@@ -37,7 +42,7 @@ public class ServiceSocketMonitor implements Runnable {
 	private static Object S_SINGLE_RUN_LOCK = new Object();
 	private static boolean S_RUNNING = false;
 	
-	
+	private static final String TAG="ServiceSocketMonitor";
 	private ByteArrayOutputStream m_ReadStream = new ByteArrayOutputStream();
 		
 	//要操作的socket
@@ -57,8 +62,7 @@ public class ServiceSocketMonitor implements Runnable {
 	
 	public ServiceSocketMonitor(Context context,Socket socket,GatewayBean gate)
 	{
-		
-		Log.v("jiaojc","socket ip:"+socket.getInetAddress().getHostAddress());
+
 		
 		this.mSocket=socket;
 		m_ReadStream = new ByteArrayOutputStream();
@@ -152,6 +156,8 @@ public class ServiceSocketMonitor implements Runnable {
 								catch (Exception e) 
 								{
 									e.printStackTrace();
+									Log.v("jiaojc","socket error e :"+e.getMessage());
+									DataTransactionService.removeSocket(mSocket);
 								}
 								
 							}
@@ -172,6 +178,8 @@ public class ServiceSocketMonitor implements Runnable {
 					catch (Exception exp)
 					{
 						exp.printStackTrace();
+						Log.v("jiaojc","socket error :"+exp.getMessage());
+						DataTransactionService.removeSocket(mSocket);
 					}
 			
 		  }
@@ -616,6 +624,9 @@ public class ServiceSocketMonitor implements Runnable {
                 //开始处理
                 DeviceInfoBean device=DeviceList.getDevice(nwkAddr);
                 
+                if(device==null)
+                	break;
+                
                 //先判断当前设备之前的在线状态，当为非在线状态时，需要上报                
                 if(!device.isOnline())
                 {                	
@@ -631,16 +642,51 @@ public class ServiceSocketMonitor implements Runnable {
                                 
             	String msgUpload=getUploadMessage(device,data);
             	
+            	CameraInfoBean camera=DeviceBindCameraList.getBindCamera(device.getIEEE_string_format());
             	
+            	String cameraSN="";
+            	String zipFileName="";
+            	
+            	if(camera!=null)
+            	{
+            		
+            		SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyyMMddHHmmss");
+            		String strOcurDateForFile=simpleDateFormat.format(nowTime);
+            		cameraSN=camera.getSn();
+            		zipFileName=cameraSN+"_"+strOcurDateForFile;
+            	}
+            	
+            	//如果设备是关状态，则不上报消息
+          
+            	if(DbDeviceState.getDeviceState(device.getIEEE_string_format())==0)            	
+            		break;
+            	
+    			
+    			
             	
             	if(msgUpload.length()!=0)
             	{
             		Date occurTime=device.getEventTime();
             		DeviceClassBean class_info=DeviceClassList.getDeviceType( device.getDeviceType());
+            		if(class_info==null)
+            		{
+            			Log.v(TAG,"device class get null,please check network status");
+            			break;
+            		}
                     if(occurTime==null)
                     {
+                    	
+                    	
                     	device.setEventTime(nowTime);                    	
-                		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), null);
+                		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), zipFileName,null);
+                		if(camera!=null)
+                		{				    		 
+				    		 Intent it=new Intent(ShiJieCameraReceiver.CaptureZIPAction);
+				    		 it.putExtra("cameraSN", cameraSN);				    		 
+				    		 it.putExtra("zip_name", zipFileName);
+				    		 mContext.sendBroadcast(it);								 
+                		}
+                		
                     }
                     else
                     {
@@ -648,7 +694,15 @@ public class ServiceSocketMonitor implements Runnable {
 	            		if(inteval>ConstUtils.DEVICE_EVENT_OCCUR_TIME)
 	            		{
 	            			device.setEventTime(nowTime);
-	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), null);
+	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(),zipFileName, null);
+	            			if(camera!=null)
+	                		{
+	            				 Intent it=new Intent(ShiJieCameraReceiver.CaptureZIPAction);
+					    		 it.putExtra("cameraSN", cameraSN);				    		 
+					    		 it.putExtra("zip_name", zipFileName);
+					    		 mContext.sendBroadcast(it);								 
+
+	                		}
 	            		}
                     }
             	}

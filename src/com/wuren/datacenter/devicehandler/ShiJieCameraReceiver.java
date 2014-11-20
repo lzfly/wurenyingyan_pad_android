@@ -34,10 +34,6 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 	public static String CaptureZIPAction="com.5ren.qianliyan.SHIJIE_CAPTURE_ZIP";
 	private final static String TAG="ShiJieCameraReceiver";
 	
-	private String mZipPicturePath;
-	private String mPicturePathTemp;
-	
-	
 	private String mCaptureImagePath;
 	public static boolean isCaptureFinish=false;
 	@Override
@@ -80,75 +76,37 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 			
    		 
 			String cameraSN=intent.getStringExtra("cameraSN");
-			String num=intent.getStringExtra("num");
-			String notice_code=intent.getStringExtra("notice_code");
+			String zip_name=intent.getStringExtra("zip_name");
 			
-			Log.v(TAG,"requeset camera SN:"+cameraSN);
+			
+			Log.v(TAG,"requeset camera SN:"+cameraSN+"\tzip_name:"+zip_name);
 			CameraInfoBean camera=CameraList.getCamera(cameraSN);
 			
-			Date nowDate=new Date();
-			SimpleDateFormat simpleDateFormat= new SimpleDateFormat("yyyyMMddHHmmss");
-			String strOcurDateForFile=simpleDateFormat.format(nowDate);
-		
-			
-//			if(camera!=null)
-//			{				
-//				
-//				
-//				String imageName=user+"_"+cameraSN+"_"+strOcurDateForFile+".jpg";
-//				
-//				String path=ConstUtils.G_IMAGE_PATH+File.separator+imageName;
-//
-//				new Thread(new CaptureImageRequest(camera,user,path)).start(); 
-//				
-//			}
-//			else
-//			{
-//				Log.v(TAG,"Camera is not exist!");
-//			}
+			if(camera!=null)
+			{				
+				
+				
+				
+				
+				String path_temp=ConstUtils.G_IMAGE_PATH+File.separator+zip_name+"_temp";
+				String zipFullPath=ConstUtils.G_IMAGE_PATH+File.separator+zip_name+".zip";
+				
+				File file=new File(path_temp);
+				if(!file.exists())
+				{
+					file.mkdir();
+				}
+				
+				new Thread(new CaptureZipRequest(camera,path_temp,zipFullPath)).start(); 
+				
+				
+			}
+			else
+			{
+				Log.v(TAG,"Camera is not exist!");
+			}
 
-			
-			
 
-			//String sensorAddr = intent.getStringExtra("sensor_addr");
-			//if (HttpUtils.S_BIND_CAMERA.containsKey(sensorAddr))
-//			{
-				//String cameraAddr = HttpUtils.S_BIND_CAMERA.get(sensorAddr);
-//				String cameraAddr ="192.168.1.35";
-				//SensorInfo camera = ActiveSensorList.getSensor(cameraAddr);
-//				if (camera != null)
-//				{
-//					File imagePathRoot=new File(ConstUtils.G_IMAGE_PATH);
-//					if(!imagePathRoot.exists())
-//					{
-//						imagePathRoot.mkdir();
-//					}
-//					
-//					String image_name= intent.getStringExtra("image_name");
-//					
-//					if(image_name!=null && image_name.length()!=0)
-//					{
-//						mPicturePathTemp=ConstUtils.G_IMAGE_PATH+File.separator+image_name+"_temp";
-//						mZipPicturePath=ConstUtils.G_IMAGE_PATH+File.separator+image_name+".zip";
-//						
-//						File file=new File(mPicturePathTemp);
-//						if(!file.exists())
-//						{
-//							file.mkdir();
-//						}
-//						
-//						//cature(camera.getIP(), camera.getPort());
-//						//cature("192.168.1.35", "10080");
-//						ShiJieUtils.Capture("192.168.1.35", "10080", ConstUtils.G_IMAGE_PATH+File.separator+"image.jpg");
-//					}
-//					else
-//						Log.v(TAG,"Failed to get file Name.");
-//				}
-//				else
-//				{
-//					ToastUtils.show(GlobalContext.getInstance(), "截图失败！");
-//				}
-//			}
 		}
 		
 	}
@@ -177,72 +135,77 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 			{
 				Log.v(TAG,"capture image error!");
 			}
+		}		
+		
+	}
+	
+	
+	private class CaptureZipRequest implements Runnable
+	{
+		
+		private CameraInfoBean mCamera;
+		private String mPathTemp;
+		private String mZipFullPath;
+		public CaptureZipRequest(CameraInfoBean camera,String path_temp,String zipFullPath)
+		{
+			
+			this.mCamera=camera;
+			this.mPathTemp=path_temp;
+			this.mZipFullPath=zipFullPath;
 		}
 		
-		
-	}
-	
-	
-	
-	private void cature(CameraInfoBean camera,String user)
-	{
-		     isCaptureFinish=false;
-		     
-		     Thread t = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
+		@Override
+		public void run() {
+			
+			
+			try
+			{
+				for(int i=0;i<ConstUtils.CAPTURE_PICTURE_NUM;i++)
+				{
 					
-					//ShiJieUtils.Capture(camera.getIP(), "10080", ConstUtils.G_IMAGE_PATH+File.separator+"image.jpg");
-//					try
-//					{
-//						for(int i=0;i<ConstUtils.CAPTURE_PICTURE_NUM;i++)
-//						{
-//							
-//							ShiJieUtils.Capture(ip, port, mPicturePathTemp+File.separator+(i+1)+".jpg");
-//							if(i<ConstUtils.CAPTURE_PICTURE_NUM-1)
-//								SystemClock.sleep(900);
-//							
-//							
-//						}
-//						isCaptureFinish=true;
-//						
-//						//要生成zip压缩包，然后删除原文件，否则让图库里照片太乱。
-//						
-//						File zipFile=new File(mZipPicturePath);	
-//						Collection<File> detailFileList=new ArrayList();
-//						detailFileList=ZipUtil.getFileList(mPicturePathTemp,".jpg");
-//						
-//						try {
-//							ZipUtil.zipFiles(detailFileList, zipFile);
-//						} catch (IOException e) {
-//							// TODO Auto-generated catch block
-//							e.printStackTrace();							
-//						}
-//						
-//						//删除临时文件
-//						File fileTemp=new File(mPicturePathTemp);
-//						if(fileTemp.exists())
-//						{
-//							IOUtils.delete(fileTemp);
-//						}
-//						
-//					}
-//					catch (Exception exp)
-//					{
-//						exp.printStackTrace();
-//					}
-//					finally
-//					{
-//						isCaptureFinish=true;
-//					}
+					ShiJieUtils.Capture(mCamera.getIP(), mCamera.getPort(), mPathTemp+File.separator+(i+1)+".jpg");
+					if(i<ConstUtils.CAPTURE_PICTURE_NUM-1)
+						SystemClock.sleep(900);					
+					
 				}
-		    	 
-		     });
-		     t.start();
-		     
-
+				
+				
+				//要生成zip压缩包，然后删除原文件，否则让图库里照片太乱。
+				
+				File zipFile=new File(mZipFullPath);	
+				Collection<File> detailFileList=new ArrayList();
+				detailFileList=ZipUtil.getFileList(mPathTemp,".jpg");
+				
+				try {
+					ZipUtil.zipFiles(detailFileList, zipFile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();							
+				}
+				
+				//删除临时文件
+				File fileTemp=new File(mPathTemp);
+				if(fileTemp.exists())
+				{
+					IOUtils.delete(fileTemp);
+				}
+				
+				Log.v("jiaojc","begin upload zip file to server");
+				//上传到服务器上
+				HttpUtils.uploadZipFile(mZipFullPath,null);
+				
+			}
+			catch (Exception exp)
+			{
+				exp.printStackTrace();
+			}
+			
+		}		
 		
 	}
+	
+	
+	
+	
 
 }

@@ -51,7 +51,7 @@ public class GlobalContext extends Application {
 								//start seart Camera thread.
 								
 								//Initialize DeviceTypeList
-								HttpUtils.getDeviceTypes(null);
+								HttpUtils.getDeviceClass(null);
 								
 								HttpUtils.getCameraList(null);
 								

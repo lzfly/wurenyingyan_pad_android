@@ -2,8 +2,11 @@ package com.wuren.datacenter.List;
 
 import java.util.Hashtable;
 
+import android.os.SystemClock;
+
 import com.wuren.datacenter.bean.CameraInfoBean;
 import com.wuren.datacenter.bean.DeviceClassBean;
+import com.wuren.datacenter.util.HttpUtils;
 
 public class CameraList {
 
@@ -52,6 +55,12 @@ public class CameraList {
 	
 	public static CameraInfoBean getCamera(String sn)
 	{
+		if(S_CAMERAS.size()==0)
+		{
+			HttpUtils.getDeviceClass(null);
+			SystemClock.sleep(2000);
+		}
+		
 		if (exists(sn))
 		{
 			return S_CAMERAS.get(sn);

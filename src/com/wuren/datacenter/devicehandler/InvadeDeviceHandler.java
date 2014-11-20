@@ -14,11 +14,11 @@ public class InvadeDeviceHandler {
 			if (data[data.length - 1] == 1)
 			{
 				//上线 并 报警
-				
-				HttpUtils.postDeviceData(device.getIEEE_string_format(), "红外报警了", 
-						"WARN", null);
-				
-				Log.d("wxm", "红外报警了");
+//				
+//				HttpUtils.postDeviceData(device.getIEEE_string_format(), "红外报警了", 
+//						"WARN", null);
+//				
+//				Log.d("wxm", "红外报警了");
 			}
 		}
 	}

@@ -46,6 +46,7 @@ public class DeviceInfoBean {
 	
 	private Date eventTime;//上次事件上报时发生的时间，当间隔小于10s内上报，累计算作一次上报
 	
+	
 	public Date getEventTime() {
 		return eventTime;
 	}

@@ -305,35 +305,9 @@ public class DataTransactionService extends Service{
 	 					//ex.printStackTrace();
 	 					Log.v("jiaojc","heart beat send error:"+mSocket.getInetAddress().getHostAddress());
 	 					//从table里删除mSocket,并关闭当前socket,Gatewaylist里也要删除相应的网关
-	 					GatewayBean gate=GatewayList.findByIP(mSocket.getInetAddress().getHostAddress());
-	 					if(gate!=null)
-	 					{
-	 						mHtGateway_Socket_Table.remove(gate.getSN());
-	 						GatewayList.remove(gate);
-	 						
-	 						//停止监听线程	 						
-	 						try {	 							
-								mSocket.close();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-	 						
-	 						//将与该网关相关联的设备都置下线状态
-	 						List<DeviceInfoBean> listDevices=DeviceList.getDeviceList(gate);	 						
-	 						if(listDevices!=null && listDevices.size()>0)
-	 						{
-	 							for(int i=0;i<listDevices.size();i++)
-	 							{
-	 								DeviceInfoBean itemDevice=listDevices.get(i);
-	 								itemDevice.setIsOnline(false);
-	 								HttpUtils.deviceOffline(itemDevice, null);
-	 							}
-	 						}
-	 							 						
-	 						//当前线程也要停止
-	 						break;	 						
-	 					}	 					
+	 					removeSocket(mSocket);
+	 					
+	 					break;	 					
 				}
 				SystemClock.sleep(5*1000);//5秒监听一次
 				
@@ -341,6 +315,39 @@ public class DataTransactionService extends Service{
 		}
 		
 	}
+	
+	
+	public static  void removeSocket(Socket socket)
+	{
+		GatewayBean gate=GatewayList.findByIP(socket.getInetAddress().getHostAddress());
+		if(gate!=null)
+		{
+			mHtGateway_Socket_Table.remove(gate.getSN());
+				GatewayList.remove(gate);
+				
+				//停止监听线程	 						
+				try {	 							
+					socket.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+				
+				//将与该网关相关联的设备都置下线状态
+				List<DeviceInfoBean> listDevices=DeviceList.getDeviceList(gate);	 						
+				if(listDevices!=null && listDevices.size()>0)
+				{
+					for(int i=0;i<listDevices.size();i++)
+					{
+						DeviceInfoBean itemDevice=listDevices.get(i);
+						itemDevice.setIsOnline(false);
+						HttpUtils.deviceOffline(itemDevice, null);
+					}
+				}
+			}
+	}
+
+
 	
 	
 	private class DeviceOnlineListenRequest implements Runnable

@@ -337,7 +337,7 @@ public class HttpUtils {
 		}
 	}
 	
-	public static void getDeviceTypes(final HttpResponseListener callback)
+	public static void getDeviceClass(final HttpResponseListener callback)
 	{
 		String url = ConstUtils.S_GET_DEVICE_TYPE_URL + "?sid=" + GlobalContext.getInstance().S_LOGIN_SESSION;
 		
@@ -755,13 +755,10 @@ public class HttpUtils {
 		
 
 	//上传zip file
-	public static String uploadZipFile(String camera_sn,String notice_id,String zip_path,final HttpResponseListener callback)
+	public static String uploadZipFile(String zip_path,final HttpResponseListener callback)
 	{
 		String url = ConstUtils.S_UPLOAD_PICTURE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION ;
 		
-		String afterurl="&camera_sn="+camera_sn+"&notice_id="+notice_id;
-		
-		url+=afterurl;
 		
 		
 		
@@ -814,7 +811,7 @@ public class HttpUtils {
 
 	
 	//提交设备实时数据（报警，温/湿度，颜色，亮度等等）
-	public static void postDeviceData(String devSN, String msg, String type, final HttpResponseListener callback)
+	public static void postDeviceData(String devSN, String msg, String type,String zip_name, final HttpResponseListener callback)
 	{
 		Log.v("jiaojc","into method postDeviceData");
 		String url = ConstUtils.S_POST_DATA_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
@@ -825,6 +822,7 @@ public class HttpUtils {
 		params.put("device_sn", devSN);
 		params.put("message", msg);
 		params.put("type", type);
+		params.put("package_file", zip_name+".zip");
 		
 		fh.post(url,  params, new AjaxCallBack<String>() {
 

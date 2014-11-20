@@ -2,7 +2,10 @@ package com.wuren.datacenter.List;
 
 import java.util.Hashtable;
 
+import android.os.SystemClock;
+
 import com.wuren.datacenter.bean.DeviceClassBean;
+import com.wuren.datacenter.util.HttpUtils;
 
 public class DeviceClassList {
 
@@ -74,6 +77,7 @@ public class DeviceClassList {
 	
 	public static DeviceClassBean getDeviceType(String code)
 	{
+		
 		if (exists(code))
 		{
 			return S_DEVICE_TYPES.get(code);

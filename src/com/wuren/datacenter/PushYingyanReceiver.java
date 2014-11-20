@@ -2,11 +2,18 @@ package com.wuren.datacenter;
 
 import java.io.File;
 
+
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.igexin.sdk.PushConsts;
+import com.wuren.datacenter.List.DeviceBindCameraList;
+import com.wuren.datacenter.List.DeviceList;
+import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.devicehandler.ShiJieCameraReceiver;
 import com.wuren.datacenter.util.ConstUtils;
+import com.wuren.datacenter.util.DbDeviceState;
+import com.wuren.datacenter.util.FebeeAPI;
 import com.wuren.datacenter.util.ShiJieUtils;
 
 import android.content.BroadcastReceiver;
@@ -55,21 +62,59 @@ public class PushYingyanReceiver extends BroadcastReceiver{
 								 context.sendBroadcast(it);								 
 					    	 }
 					     }
-//					     else if(actionType.equals("camera_5lianpai"))
-//					     {
-//					    	 JSONObject camerInfoObj = Obj.getJSONObject("cameraInfo");
-//					    	 if(camerInfoObj!=null)
-//					    	 {
-//					    		 String cameraSN=camerInfoObj.getString("cameraSN");
-//					    		 String num=camerInfoObj.getString("num");
-//					    		 String notice_code=camerInfoObj.getString("notice_code");
-//					    		 Intent it=new Intent(ShiJieCameraReceiver.CaptureZIPAction);
-//					    		 it.putExtra("cameraSN", cameraSN);
-//					    		 it.putExtra("num", num);
-//					    		 it.putExtra("notice_code", notice_code);
-//								 context.sendBroadcast(it);								 
-//					    	 }
-//					     }
+					     else if(actionType.equals("bind_camera"))
+					     {
+					    	 JSONObject camerInfoObj = Obj.getJSONObject("bindInfo");
+					    	 if(camerInfoObj!=null)
+					    	 {
+					    		 String cameraSN=camerInfoObj.getString("cameraSN");
+					    		 
+					    		 String device_ieee=camerInfoObj.getString("deviceSN");
+					    		 
+					    		 DeviceBindCameraList.put(device_ieee, cameraSN);								 
+					    	 }
+					     }
+					     else if(actionType.equals("unbind_camera"))
+					     {
+					    	 JSONObject camerInfoObj = Obj.getJSONObject("bindInfo");
+					    	 if(camerInfoObj!=null)
+					    	 {
+					    		 
+					    		 String device_ieee=camerInfoObj.getString("deviceSN");
+					    		 
+					    		 DeviceBindCameraList.remove(device_ieee);								 
+					    	 }
+					     }
+					     
+					     else if(actionType.equals("open_device"))
+					     {
+					    	 JSONArray items = Obj.getJSONArray("deviceSN");
+					    	 
+					    	 
+					    	 if (items != null )
+					    	 {
+					    		 for(int i=0;i<items.size();i++)
+					    		 {
+					    			 
+					    			 DbDeviceState.openDevice(items.getString(i));
+					    			 
+					    		 }
+
+					    	 }
+					     }
+					     else if(actionType.equals("close_device"))
+					     {
+					    	 JSONArray items = Obj.getJSONArray("deviceSN");
+					    	 if (items != null )
+					    	 {
+					    		 for(int i=0;i<items.size();i++)
+					    		 {
+					    			 DbDeviceState.closeDevice(items.getString(i));
+					    		 }
+
+					    	 }
+	
+					     }
 					     
 							
 							
