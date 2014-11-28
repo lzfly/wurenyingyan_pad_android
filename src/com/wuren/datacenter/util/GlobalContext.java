@@ -1,5 +1,7 @@
 package com.wuren.datacenter.util;
 
+import java.io.File;
+
 import com.igexin.sdk.PushManager;
 
 import android.app.Application;
@@ -9,7 +11,7 @@ public class GlobalContext extends Application {
 
 	private static GlobalContext S_INSTANCE = null;
 
-	private static String S_PASS = "888888";
+	public static String S_PASS = "888888";
 	
 	public static boolean S_LOGINED = false;
 	public static String S_LOGIN_SESSION = "";
@@ -22,7 +24,16 @@ public class GlobalContext extends Application {
 		
 		S_INSTANCE = this;
 		
+		
+		
+		Log.initLog(S_INSTANCE, Logger.ERROR);
 		PushManager.getInstance().initialize(this.getApplicationContext());
+		
+		File file=new File(ConstUtils.G_IMAGE_PATH);
+		if(!file.exists())
+		{
+			file.mkdir();
+		}
 		
 		//final String devId = CommonUtils.getDeviceId(this);
 		S_SMARTCENTER_SN = "351792055028994";
@@ -39,6 +50,7 @@ public class GlobalContext extends Application {
 					
 					HttpUtils.login(S_SMARTCENTER_SN, S_PASS, new HttpUtils.HttpResponseListener() {
 						
+						
 						@Override
 						public void onStart() {
 						}
@@ -46,11 +58,10 @@ public class GlobalContext extends Application {
 						@Override
 						public void onDone(boolean succ, String result) {
 							
+							
 							if(succ)
 							{
-								//start seart Camera thread.
-								
-								//Initialize DeviceTypeList
+																								
 								HttpUtils.getDeviceClass(null);
 								
 								HttpUtils.getCameraList(null);

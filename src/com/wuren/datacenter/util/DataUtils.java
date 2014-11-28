@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
-import android.util.Log;
 
 import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;
@@ -87,6 +86,7 @@ public static final class FbeeControlCommand{
 
 	private static DataUtils mInstance;
 	
+	private static final String TAG="DataUtils";
 	public static DataUtils getInstance()
 	{
 		if(mInstance==null)
@@ -113,27 +113,12 @@ public static final class FbeeControlCommand{
 	  }
 	
 	
-//	public static List<GatewayBean> mListGateway=new ArrayList();
-//	
-//	public static List<DeviceInfoBean> mListDevices=new ArrayList();
 	
 	public static Hashtable mHtGatewayReceive_Socket_Thread=new Hashtable();
 	
 	
 	
-//	//通过gateway sn 获得gate对象
-//	public GatewayBean getGate(String gateway_sn)
-//	{
-//		if(gateway_sn==null)
-//			return null;
-//		for(int i=0;i<mListGateway.size();i++)
-//		{
-//			GatewayBean temp=mListGateway.get(i);
-//			if(temp.getSN().equals(gateway_sn))
-//				return temp;
-//		}
-//		return null;
-//	}
+
 	
 	public void executeCommand(Socket socket,int mControlType)
 	{
@@ -174,13 +159,14 @@ public static final class FbeeControlCommand{
 	              
 	        } catch (UnknownHostException e) {  
 	            // TODO Auto-generated catch block  
-	        	Log.v("jiaojc","UnknownHostException "+e.getMessage());
+	        	Log.v(TAG,"UnknownHostException "+e.getMessage());
 	            //e.printStackTrace();  
 	            DataTransactionService.removeSocket(socket);
 	        } catch (IOException e) {  
 	            // TODO Auto-generated catch block  
-	            //e.printStackTrace();
-	        	Log.v("jiaojc","IOException "+e.getMessage());
+	            
+	        	Log.v(TAG,"IOException "+e.getMessage());
+	        	e.printStackTrace();
 	            DataTransactionService.removeSocket(socket);
 	        }
 	}
@@ -245,7 +231,7 @@ public static final class FbeeControlCommand{
 			
 		}
 		
-		 Log.v("jiaojc",socket.getInetAddress().getHostAddress()+" begin send command:"+command);
+		 Log.v(TAG,socket.getInetAddress().getHostAddress()+" begin send command:"+command);
         
         return bt1;
 

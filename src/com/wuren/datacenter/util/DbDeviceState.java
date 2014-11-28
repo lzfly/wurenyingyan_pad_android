@@ -13,7 +13,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
+
 
 public class DbDeviceState {
 	

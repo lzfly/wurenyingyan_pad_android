@@ -33,7 +33,7 @@ import com.wuren.datacenter.util.CommonUtils.DateFormatType;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
-import android.util.Log;
+import com.wuren.datacenter.util.Log;
 
 
 public class ServiceSocketMonitor implements Runnable {
@@ -100,7 +100,8 @@ public class ServiceSocketMonitor implements Runnable {
 							if(mSocket.isClosed())
 							{
 								//断线了
-								Log.v("jiaojc", mSocket.getInetAddress().getHostAddress()+"  is closed,Thread will be closed");
+								Log.v(TAG, mSocket.getInetAddress().getHostAddress()+"  is closed,Thread will be closed");
+								//DataTransactionService.removeSocket(mSocket);
 								break;
 							}
 							
@@ -142,8 +143,8 @@ public class ServiceSocketMonitor implements Runnable {
 											msgs+=" ";
 											
 										}
-									    Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+" receive msg:"+msgs+"\n");
-									    Log.d("wxm", "received data: " + msgs);
+									    //Log.v(TAG,mSocket.getInetAddress().getHostAddress()+" receive msg:"+msgs+"\n");
+									   // Log.d("wxm", "received data: " + msgs);
 
 									    int bytesRead = receivedData.length;
 					                    int bytesProcessed = 0;
@@ -156,7 +157,7 @@ public class ServiceSocketMonitor implements Runnable {
 								catch (Exception e) 
 								{
 									e.printStackTrace();
-									Log.v("jiaojc","socket error e :"+e.getMessage());
+									Log.v(TAG,"socket error e :"+e.getMessage());
 									DataTransactionService.removeSocket(mSocket);
 								}
 								
@@ -164,7 +165,7 @@ public class ServiceSocketMonitor implements Runnable {
 							else
 							{
 								//断线了
-								Log.v("jiaojc", mSocket.getInetAddress().getHostAddress()+"  is disconnected");								
+								Log.v(TAG, mSocket.getInetAddress().getHostAddress()+"  is disconnected");								
 								break;
 							}
 							
@@ -178,7 +179,7 @@ public class ServiceSocketMonitor implements Runnable {
 					catch (Exception exp)
 					{
 						exp.printStackTrace();
-						Log.v("jiaojc","socket error :"+exp.getMessage());
+						Log.v(TAG,"socket error :"+exp.getMessage());
 						DataTransactionService.removeSocket(mSocket);
 					}
 			
@@ -192,7 +193,7 @@ public class ServiceSocketMonitor implements Runnable {
         int msgLen;
         int msgoldstart;
         msgoldstart = msgPtr;
-       // Log.v("jiaojc",""+mGate.getIP()+" rpcsProcessIncoming response header--"+msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS]);
+       // Log.v(TAG,""+mGate.getIP()+" rpcsProcessIncoming response header--"+msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS]);
         switch (msg[msgPtr + DataUtils.FbeeControlCommand.SRPC_CMD_ID_POS])
         {
          	
@@ -220,13 +221,13 @@ public class ServiceSocketMonitor implements Runnable {
                         nwkAddr += (nwkAddrTemp << (8 * i));
                     }
                     
-             //       Log.v("jiaojc","shortAddress:"+nwkAddr+"\tHex:"+Integer.toHexString(nwkAddr));                    
+             //       Log.v(TAG,"shortAddress:"+nwkAddr+"\tHex:"+Integer.toHexString(nwkAddr));                    
                     
                     //Get the EndPoint
                     byte byte_endpoint=msg[msgPtr++];
                     endPoint = (char)byte_endpoint;
                     
-                 //   Log.v("jiaojc","endPoint byteValue:"+byte_endpoint+"\tchar format:"+endPoint);
+                 //   Log.v(TAG,"endPoint byteValue:"+byte_endpoint+"\tchar format:"+endPoint);
 
                     //Get the ProfileId
                     for (int i = 0; i < 2; i++, msgPtr++)
@@ -235,7 +236,7 @@ public class ServiceSocketMonitor implements Runnable {
                         profileId += (profileIdTemp << (8 * i));
                     }
                     
-              //      Log.v("jiaojc","profileId:"+profileId+"\tHex:"+Integer.toHexString(profileId));
+              //      Log.v(TAG,"profileId:"+profileId+"\tHex:"+Integer.toHexString(profileId));
 
                     //Get the DeviceId
                     for (int i = 0; i < 2; i++, msgPtr++)
@@ -245,7 +246,7 @@ public class ServiceSocketMonitor implements Runnable {
                     }
                     
                     
-            //        Log.v("jiaojc","deviceId:"+deviceId+"\tHex:"+Integer.toHexString(deviceId));
+            //        Log.v(TAG,"deviceId:"+deviceId+"\tHex:"+Integer.toHexString(deviceId));
 
 
                     //index passed version
@@ -262,7 +263,7 @@ public class ServiceSocketMonitor implements Runnable {
                         }
                         deviceName = new String(device1,0,nameSize);
                         
-                      //  Log.v("jiaojc","deviceName:"+deviceName);
+                      //  Log.v(TAG,"deviceName:"+deviceName);
                         
                     }
                     //index passed status
@@ -289,8 +290,7 @@ public class ServiceSocketMonitor implements Runnable {
                     
                     String shortAddress=Integer.toHexString(nwkAddr);
                     if(shortAddress.length()<4)
-                    	shortAddress="0"+shortAddress;
-                    Log.v("jiaojc","get device:"+shortAddress+"\tieee:"+str_ieee_temp+"\tname:"+deviceName);
+                    	shortAddress="0"+shortAddress;                    
                     
                     
                     if ((msgPtr - msgoldstart + 2) < msgLen)
@@ -307,12 +307,15 @@ public class ServiceSocketMonitor implements Runnable {
 
                             
                             deviceSN = new String(device2,0,snSize);
-                //            Log.v("jiaojc","deviceSN:"+deviceSN);
+                //            Log.v(TAG,"deviceSN:"+deviceSN);
 
                         }
                     }
                     if(!DeviceList.exists(str_ieee_temp))
+                    {
+                    	Log.v(TAG,"get device:"+shortAddress+"\tieee:"+str_ieee_temp+"\tname:"+deviceName);                        
                     	newDevice(profileId, deviceId, nwkAddr, endPoint, ieee,bOnline,deviceName, deviceSN);
+                    }
 
                     break;
                 }
@@ -440,7 +443,7 @@ public class ServiceSocketMonitor implements Runnable {
                     	mDeviceListener.onTaskComplete();
                     }
                     
-                    Log.v("jiaojc","device status:"+state+"\tdevice online value:"+device.getOnlineStatus());
+                    Log.v(TAG,"device status:"+state+"\tdevice online value:"+device.getOnlineStatus());
                     
 
                   
@@ -591,7 +594,7 @@ public class ServiceSocketMonitor implements Runnable {
                 if(strShortAddr.length()<4)
                 	strShortAddr="0"+strShortAddr;
                 
-                Log.v("jiaojc",mSocket.getInetAddress().getHostAddress()+"--"+strShortAddr+" received a device response. value:"+nwkAddr);
+                
 
                 //Get the EP
                 endPoint = (byte)msg[msgPtr++];
@@ -630,7 +633,7 @@ public class ServiceSocketMonitor implements Runnable {
                 //先判断当前设备之前的在线状态，当为非在线状态时，需要上报                
                 if(!device.isOnline())
                 {                	
-                	Log.v("jiaojc1",strShortAddr+"--before is offline,will set online status");
+                	Log.v(TAG,strShortAddr+"--before is offline,will set online status");
                 	HttpUtils.deviceOnline(device, null);
                 }
                 
@@ -639,8 +642,11 @@ public class ServiceSocketMonitor implements Runnable {
                 device.setHeartTime(nowTime);
                                 
                 device.setIsOnline(true);
-                                
+                 
+                
+                
             	String msgUpload=getUploadMessage(device,data);
+            	
             	
             	CameraInfoBean camera=DeviceBindCameraList.getBindCamera(device.getIEEE_string_format());
             	
@@ -658,14 +664,19 @@ public class ServiceSocketMonitor implements Runnable {
             	
             	//如果设备是关状态，则不上报消息
           
-            	if(DbDeviceState.getDeviceState(device.getIEEE_string_format())==0)            	
+            	if(DbDeviceState.getDeviceState(device.getIEEE_string_format())==0)     
+            	{
+            		Log.v(TAG,"getDeviceState false");
             		break;
+            	}
             	
     			
     			
-            	
             	if(msgUpload.length()!=0)
             	{
+            		
+            		
+            		
             		Date occurTime=device.getEventTime();
             		DeviceClassBean class_info=DeviceClassList.getDeviceType( device.getDeviceType());
             		if(class_info==null)
@@ -675,8 +686,7 @@ public class ServiceSocketMonitor implements Runnable {
             		}
                     if(occurTime==null)
                     {
-                    	
-                    	
+                    	Log.v(TAG,"Warning-----"+mSocket.getInetAddress().getHostAddress()+"--"+strShortAddr+" received a warning response.");                    	
                     	device.setEventTime(nowTime);                    	
                 		HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(), zipFileName,null);
                 		if(camera!=null)
@@ -693,6 +703,7 @@ public class ServiceSocketMonitor implements Runnable {
 	            		long inteval=nowTime.getTime()-occurTime.getTime();
 	            		if(inteval>ConstUtils.DEVICE_EVENT_OCCUR_TIME)
 	            		{
+	            			Log.v(TAG,"Warning-----"+mSocket.getInetAddress().getHostAddress()+"--"+strShortAddr+" received a warning response.");
 	            			device.setEventTime(nowTime);
 	            			HttpUtils.postDeviceData(device.getIEEE_string_format(), msgUpload, class_info.getType(),zipFileName, null);
 	            			if(camera!=null)
@@ -812,7 +823,7 @@ public class ServiceSocketMonitor implements Runnable {
                 	}
                 }
 
-             //  Log.v("jiaojc","user:"+new String(user,0,userLenth)+"\tpwd:"+new String(pwd,0,pwdLength));
+             //  Log.v(TAG,"user:"+new String(user,0,userLenth)+"\tpwd:"+new String(pwd,0,pwdLength));
                
                
                
@@ -882,7 +893,7 @@ public class ServiceSocketMonitor implements Runnable {
 		int typeValue = Integer.parseInt(deviceType.replaceAll("^0[x|X]", ""), 16);
 		
 		
-//		Log.v("jiaojc","into method getUploadMessage deviceType:"+deviceType+"\tvalue:"+value);
+//		Log.v(TAG,"into method getUploadMessage deviceType:"+deviceType+"\tvalue:"+value);
 		
 		String result="";
 		switch(typeValue)

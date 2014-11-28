@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -18,7 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
+import com.wuren.datacenter.util.Log;
 
 public class SearchGatewayThread extends Thread{
 	
@@ -31,7 +32,7 @@ public class SearchGatewayThread extends Thread{
     private static final int MAX_DATA_PACKET_LENGTH = 256;
     
     //每隔30秒搜索在局域网一次网关
-    private static final int SEARCH_INTEVAL_SECOND=10;
+    private static final int SEARCH_INTEVAL_SECOND=30;
    
     private Context mContext;
     public SearchGatewayThread( Context context) {  
@@ -40,17 +41,50 @@ public class SearchGatewayThread extends Thread{
     
     public void run(){  
 
+    	
     	while(true)
     	{
-    		search();
+//    		try{
+//    			search();
+//    		}
+//    		catch(Exception exp)
+//    		{
+//    			exp.printStackTrace();
+//    		}
+//    		
+//    		Log.v(LOG_TAG,"SearchGatewayThread run:"+iflag);
+//    		iflag++;
+//    		
+//    		SystemClock.sleep(SEARCH_INTEVAL_SECOND*1000);
+//    	
     		
+    	
+    		Thread thread=new Thread(new ProcessSearchGatewayRequest());
+    		thread.start();
     		
     		SystemClock.sleep(SEARCH_INTEVAL_SECOND*1000);
     		
+    		if(thread!=null)
+    		{
+    			thread.interrupt();
+    		}
+    	
     		
     	}
     	
     } 
+    
+    
+    private class ProcessSearchGatewayRequest implements Runnable
+	{
+    	    	
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			searchFebee();
+		}
+    	
+	}
     
     private void searchFebee()
     {
@@ -60,7 +94,14 @@ public class SearchGatewayThread extends Thread{
     	DatagramSocket mUdpSocket = null;
     	   
 		try {  
-    		mUdpSocket = new DatagramSocket(DEFAULT_PORT );  
+			//mUdpSocket = new DatagramSocket(DEFAULT_PORT );  
+			if(mUdpSocket==null)
+			{
+				mUdpSocket=new DatagramSocket(null);
+				mUdpSocket.setReuseAddress(true);
+				mUdpSocket.bind(new InetSocketAddress(DEFAULT_PORT));
+			}
+    		
     		byte[] buffer = new byte[MAX_DATA_PACKET_LENGTH];  
             dataPacket = new DatagramPacket(buffer, MAX_DATA_PACKET_LENGTH);   
             
@@ -78,9 +119,12 @@ public class SearchGatewayThread extends Thread{
             
             mUdpSocket.send(dataPacket);
         } catch (Exception e) {  
-            Log.e(LOG_TAG, "send search command failed. "+e.toString());  
+            Log.e(LOG_TAG, "send search command failed. "+e.toString());              
             if(mUdpSocket!=null)
+            {
       	      mUdpSocket.close();
+      	      mUdpSocket=null;
+            }
             return;
         } 
     
@@ -94,20 +138,28 @@ public class SearchGatewayThread extends Thread{
         int maxWaitCount=10;
         int iWaitFlag=0;
         boolean bFoundGateway=false;
-	    while( iWaitFlag < maxWaitCount )
+	   while( iWaitFlag < maxWaitCount )
 	    {  	      	
 	          try {      
 	          	mUdpSocket.receive(udpReceivePacket);  
 	          } catch (Exception e) {  
 	              System.out.println( e.toString());  
 	          }  
-	
+	          Log.v(LOG_TAG,"iWaitFlag:"+iWaitFlag);
 	          String strMsg=new String(udpReceivePacket.getData()).trim();
 	          if( strMsg.length() != 0 ){
-	          	
-	              if(strMsg.contains("IP:"))
+	        	  Log.v(LOG_TAG,"strMsg:"+strMsg);
+	        	  
+//	        	  if(strMsg.startsWith("GETIP"))
+//	        	  {
+//	        		  break;
+//	        	  }
+//	        	  else
+	        		  if(strMsg.contains("IP:"))
 		            {	            	
 		            	Log.v(LOG_TAG,"Found IP gateway:"+strMsg);
+		            	
+		            	
 		            	
 		            	String strArray[]=strMsg.split("\r\n");
 		            	
@@ -136,7 +188,7 @@ public class SearchGatewayThread extends Thread{
 		            	gate.setSNArray(karray);
 		            	
 		            	
-		            	Log.v("jiaojc","IP:"+gate.getIP()+"\tSN:"+gate.getSN());
+		            	Log.v(LOG_TAG,"IP:"+gate.getIP()+"\tSN:"+gate.getSN());
 		            	
 		            	if(!GatewayList.exists(gate.getSN()))
 		            	{
@@ -168,6 +220,7 @@ public class SearchGatewayThread extends Thread{
 	          
 	          }  
 	          SystemClock.sleep(1000);
+	         
 	          iWaitFlag++;
 	      }  
 	    
@@ -176,7 +229,10 @@ public class SearchGatewayThread extends Thread{
 	    	  Log.v(LOG_TAG,"Sorry,can not find gateway!");
 	      }
 	      if(mUdpSocket!=null)
-	      mUdpSocket.close();
+	      {
+	    	  mUdpSocket.close();
+	    	  mUdpSocket=null;
+	      }
     }
     
     private void startHeartBeatListen(GatewayBean gate)

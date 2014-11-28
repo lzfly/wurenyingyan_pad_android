@@ -10,11 +10,12 @@ public class ConstUtils {
 	public static int S_HTTP_REQUEST_RETRY_COUNT = 2;	//服务器请求次数
 	public static int S_HTTP_REQUEST_TIMEOUT = 1000 * 20; //服务器请求超时时间	
 
-	public static String S_NET_URL="http://192.168.1.102";
+	//public static String S_NET_URL="http://www.5ren.net";
+	public static String S_NET_URL="http://182.92.156.183";
 	public static String S_API_URL = S_NET_URL+":"+"8007";
 	
-	public static String S_INIT_URL = S_API_URL + "/smartcenter/init";				//智能主机初始化接口
-	public static String S_LOGIN_URL = S_API_URL + "/smartcenter/login";			//智能主机登录接口
+	public static String S_INIT_URL = S_API_URL + "/smartCenter/init";				//智能主机初始化接口
+	public static String S_LOGIN_URL = S_API_URL + "/smartCenter/login";			//智能主机登录接口
 	public static String S_SYNC_DEVICE_URL = S_API_URL + "/device/deviceSync";		//设备同步接口
 	public static String S_POST_DATA_URL = S_API_URL + "/notice/new";		//提交设备上报数据
 	public static String S_GET_DEVICE_TYPE_URL = S_API_URL + "/deviceType/deviceTypeList";		//获取设备类型接口
@@ -22,6 +23,8 @@ public class ConstUtils {
 	public static String S_GET_BIND_CAMERA_LIST_URL = S_API_URL + "/device/getBindCameraList";		//获取所有设备绑定的摄像头
 	
 	public static String S_UPLOAD_PICTURE_URL = S_API_URL + "/camera/uploadCameraScreenshot";//上传拍摄的照片接口	
+	
+	public static String S_UPLOAD_ZIP_URL = S_API_URL + "/camera/uploadCamera5Lianpai";//上传zip file
 	
 	public static String S_GET_CAMERS_URL = S_API_URL + "/camera/cameraList";		//获取摄像列表
 	

@@ -34,6 +34,7 @@ import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.DataUtils;
 import com.wuren.datacenter.util.FebeeAPI;
 import com.wuren.datacenter.util.HttpUtils;
+import com.wuren.datacenter.util.Log;
 
 import android.app.Service;
 import android.content.Context;
@@ -42,7 +43,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Base64;
-import android.util.Log;
 
 public class DataTransactionService extends Service{
 
@@ -112,7 +112,7 @@ public class DataTransactionService extends Service{
 	     
 	        byte[] byteArray = messageDigest.digest();
 	        
-	        Log.v("jiaojc","after md5,byteArray length:"+byteArray );
+	        Log.v(LOG_TAG,"after md5,byteArray length:"+byteArray );
 	        return byteArray;
 	     
 	    }  
@@ -152,10 +152,14 @@ public class DataTransactionService extends Service{
 //		
 //		String test=f("A000001A2B3C4F","sprint","foobar");
 //		String test2=f("","","foobar");
-//		Log.v("jiaojc","test:"+test+"\tlength:"+test.length());
-//		Log.v("jiaojc","test2:"+test2+"\t test2 length:"+test2.length());
+//		Log.v(LOG_TAG,"test:"+test+"\tlength:"+test.length());
+//		Log.v(LOG_TAG,"test2:"+test2+"\t test2 length:"+test2.length());
 		
 		processSearchGateway();  
+		
+		
+		
+		(new Thread(new RepeatLoginService())).start();
 				
 		startListenDevicesOnlineStatus();
 	
@@ -272,7 +276,7 @@ public class DataTransactionService extends Service{
         				
         			}
         			    				
-    				Log.v("jiaojc","getway user:"+username+"\tpwd:"+password);
+    				Log.v(LOG_TAG,"getway user:"+username+"\tpwd:"+password);
 
         		}
         	}
@@ -303,7 +307,7 @@ public class DataTransactionService extends Service{
 				catch(Exception ex)
 				{
 	 					//ex.printStackTrace();
-	 					Log.v("jiaojc","heart beat send error:"+mSocket.getInetAddress().getHostAddress());
+	 					Log.v(LOG_TAG,"heart beat send error:"+mSocket.getInetAddress().getHostAddress());
 	 					//从table里删除mSocket,并关闭当前socket,Gatewaylist里也要删除相应的网关
 	 					removeSocket(mSocket);
 	 					
@@ -374,7 +378,6 @@ public class DataTransactionService extends Service{
 						 long between=(currentDate.getTime()-heartTime.getTime())/1000;		
 						 
 						 
-						 Log.v("jiaojc1","between:"+between);
 						 if(between>(ConstUtils.DEVICE_OFFLINE_INTEVAL_TIME/1000))
 						 {
 							 
@@ -408,8 +411,13 @@ public class DataTransactionService extends Service{
 			// TODO Auto-generated method stub
 			while(true)
 			{
+				if(mSocket.isClosed())
+					break;
+				
+				//GatewayBean gate=GatewayList.findByIP(mSocket.getInetAddress().getHostAddress());
+				
 				DataUtils.getInstance().executeCommand(mSocket,DataUtils.FbeeControlCommand.RPCS_GET_DEVICES);
-				SystemClock.sleep(40*1000);//40秒搜索一次设备
+				SystemClock.sleep(2*60*1000);//120秒搜索一次设备
 				
 			}
 		}

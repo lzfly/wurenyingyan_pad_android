@@ -9,8 +9,10 @@ import java.util.Collection;
 import java.util.Date;
 
 
+import com.wuren.datacenter.SplashActivity;
 import com.wuren.datacenter.List.CameraList;
 import com.wuren.datacenter.bean.CameraInfoBean;
+import com.wuren.datacenter.service.DataTransactionService;
 import com.wuren.datacenter.util.ConstUtils;
 import com.wuren.datacenter.util.GlobalContext;
 import com.wuren.datacenter.util.HttpUtils;
@@ -26,12 +28,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
+import com.wuren.datacenter.util.Log;
 
 public class ShiJieCameraReceiver extends BroadcastReceiver {
 
 	public static String CaptureImageAction="com.5ren.qianliyan.SHIJIE_CAPTURE_IMAGE";
 	public static String CaptureZIPAction="com.5ren.qianliyan.SHIJIE_CAPTURE_ZIP";
+	
+	public static String BOOT_ACTION="android.intent.action.BOOT_COMPLETED";
+	
 	private final static String TAG="ShiJieCameraReceiver";
 	
 	private String mCaptureImagePath;
@@ -107,6 +112,21 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 			}
 
 
+		}
+		
+		if(intent.getAction().equals(BOOT_ACTION))
+		{
+			//start Service
+			//jiaojc
+			File configPath=new File(ConstUtils.G_GLOABAL_PATH);
+			if(!configPath.exists())
+			{
+				configPath.mkdir();
+			}
+			//jiaojc
+			Log.v(TAG,"will start DataTransactionService service...");
+			Intent it = new Intent(context,DataTransactionService.class);
+			context.startService(it);
 		}
 		
 	}
@@ -190,7 +210,7 @@ public class ShiJieCameraReceiver extends BroadcastReceiver {
 					IOUtils.delete(fileTemp);
 				}
 				
-				Log.v("jiaojc","begin upload zip file to server");
+				Log.v(TAG,"begin upload zip file to server");
 				//上传到服务器上
 				HttpUtils.uploadZipFile(mZipFullPath,null);
 				

@@ -32,7 +32,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
-import android.util.Log;
+import com.wuren.datacenter.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;

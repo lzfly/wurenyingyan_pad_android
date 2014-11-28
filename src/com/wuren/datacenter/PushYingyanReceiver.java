@@ -21,15 +21,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
+import com.wuren.datacenter.util.Log;
 
 public class PushYingyanReceiver extends BroadcastReceiver{
+	
+	private static final String TAG="PushYingyanReceiver";
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		// TODO Auto-generated method stub
 			Bundle bundle = intent.getExtras();
-		  	Log.d("jiaojc", "onReceive() action=" + bundle.getInt("action"));
+		  	Log.d(TAG, "onReceive() action=" + bundle.getInt("action"));
 		  	
    		    switch (bundle.getInt(PushConsts.CMD_ACTION)) {
 			   case PushConsts.GET_MSG_DATA:
@@ -41,13 +43,13 @@ public class PushYingyanReceiver extends BroadcastReceiver{
 				    	String data = new String(payload);
 					     
 					     String decode_data=new String(Base64.decode(payload, 0, payload.length, Base64.DEFAULT));
-					     Log.d("jiaojc", "Got Payload base64:" + data);
-					     Log.d("jiaojc", "Got Payload decode:" + decode_data);
+					     Log.d(TAG, "Got Payload base64:" + data);
+					     Log.d(TAG, "Got Payload decode:" + decode_data);
 					     
 					     JSONObject Obj = JSON.parseObject(decode_data);
 					     String actionType= Obj.getString("actionType");
 					     
-					     Log.d("jiaojc", "actionType:"+actionType );
+					     Log.d(TAG, "actionType:"+actionType );
 					     if(actionType.equals("camera_screenshot"))
 					     {   
 					    	 

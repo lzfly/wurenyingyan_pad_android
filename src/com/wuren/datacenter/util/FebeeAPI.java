@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.wuren.datacenter.List.DeviceList;
 import com.wuren.datacenter.List.GatewayList;

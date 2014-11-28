@@ -18,7 +18,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -64,14 +63,12 @@ public class HttpUtils {
 		//params.put("push_clientid", PushManager.getInstance().getClientid(GlobalContext.getInstance()));
 		params.put("push_clientid", GlobalContext.getInstance().getPushClientId());
 		
-		Log.v("jiaojc","push_clientid:"+GlobalContext.getInstance().getPushClientId());
 		
 		fh.post(ConstUtils.S_INIT_URL, params, new AjaxCallBack<String>() {
 
 			@Override
 			public void onStart() {
 				super.onStart();
-				
 				if (callback != null)
 				{
 					callback.onStart();
@@ -93,10 +90,12 @@ public class HttpUtils {
 				super.onSuccess(t);
 				
 				boolean succ = false;
+								
 				try
 				{
 					JSONObject loginObj = JSON.parseObject(t);
 					int code = loginObj.getIntValue("code");
+					
 					if (code == S_SUCC_CODE)
 					{
 						succ = true;
@@ -104,6 +103,7 @@ public class HttpUtils {
 				}
 				catch (Exception exp)
 				{
+					exp.printStackTrace();
 				}
 				
 				if (callback != null)
@@ -140,7 +140,6 @@ public class HttpUtils {
 			public void onFailure(Throwable t, int errorNo, String strMsg) {
 				super.onFailure(t, errorNo, strMsg);
 				GlobalContext.S_LOGINED = false;
-				
 				if (callback != null)
 				{
 					callback.onDone(false, null);
@@ -224,6 +223,7 @@ public class HttpUtils {
 							JSONArray arrDevBindCamera = resultObj.getJSONArray("deviceBindCamera.list");
 							if (arrDevBindCamera != null && arrDevBindCamera.size() > 0)
 							{
+								DeviceBindCameraList.clear();
 								for (int i = 0; i < arrDevBindCamera.size(); i++)
 								{
 									JSONObject devBindCameraObj = arrDevBindCamera.getJSONObject(i);
@@ -381,6 +381,7 @@ public class HttpUtils {
 							JSONArray arrDevTypes = resultObj.getJSONArray("deviceType.list");
 							if (arrDevTypes != null && arrDevTypes.size() > 0)
 							{
+								DeviceClassList.clear();
 								for (int i = 0; i < arrDevTypes.size(); i++)
 								{
 									JSONObject devTypeObj = arrDevTypes.getJSONObject(i);
@@ -459,6 +460,7 @@ public class HttpUtils {
 							JSONArray arrCameras = resultObj.getJSONArray("camera.list");
 							if (arrCameras != null && arrCameras.size() > 0)
 							{
+								DeviceBindCameraList.clear();
 								for (int i = 0; i < arrCameras.size(); i++)
 								{
 									JSONObject cameraObj = arrCameras.getJSONObject(i);
@@ -573,7 +575,7 @@ public class HttpUtils {
 		
 		AjaxParams params = new AjaxParams();
 		params.put("device_sn", device.getIEEE_string_format());
-		Log.v("jiaojc","deviceOffline---device_sn:"+device.getIEEE_string_format());
+		Log.v(TAG,"deviceOffline---device_sn:"+device.getIEEE_string_format());
 		params.put("is_online", "0");
 		
 		fh.post(url, params, new AjaxCallBack<String>() {
@@ -730,16 +732,21 @@ public class HttpUtils {
 		try {
 			httpResponse = httpClient.execute(httpPost);
 			
-			Log.w("jiaojc", "upload--result--before:"+httpResponse.getStatusLine().getStatusCode());
+			Log.w(TAG, "upload--result--before:"+httpResponse.getStatusLine().getStatusCode());
+			if(fileTemp.exists())
+			{
+				IOUtils.delete(fileTemp);
+			}
+			
 			
 			if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
 			{
 				
 				String httpResult = EntityUtils.toString(httpResponse.getEntity());
-				Log.w("jiaojc", "upload--result:"+httpResult);
+				Log.w(TAG, "upload--result:"+httpResult);
 				return httpResult;
 			} else {
-				Log.w("jiaojc", "upload--result:"+httpResponse.getStatusLine().getStatusCode());
+				Log.w(TAG, "upload--result:"+httpResponse.getStatusLine().getStatusCode());
 				return null;
 			}
 			
@@ -757,7 +764,7 @@ public class HttpUtils {
 	//上传zip file
 	public static String uploadZipFile(String zip_path,final HttpResponseListener callback)
 	{
-		String url = ConstUtils.S_UPLOAD_PICTURE_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION ;
+		String url = ConstUtils.S_UPLOAD_ZIP_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION ;
 		
 		
 		
@@ -785,15 +792,20 @@ public class HttpUtils {
 		try {
 			httpResponse = httpClient.execute(httpPost);
 			
-			Log.w("jiaojc", "zip upload--result--before:"+httpResponse.getStatusLine().getStatusCode());
+
+			if(fileTemp.exists())
+			{
+				IOUtils.delete(fileTemp);
+			}
+			
 			
 			if (httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK) 
 			{				
 				String httpResult = EntityUtils.toString(httpResponse.getEntity());
-				Log.w("jiaojc", "zip upload--result:"+httpResult);
+				Log.w(TAG, "zip upload--result:"+httpResult);				
 				return httpResult;
 			} else {
-				Log.w("jiaojc", "zip upload--result:"+httpResponse.getStatusLine().getStatusCode());
+				
 				return null;
 			}
 			
@@ -813,7 +825,7 @@ public class HttpUtils {
 	//提交设备实时数据（报警，温/湿度，颜色，亮度等等）
 	public static void postDeviceData(String devSN, String msg, String type,String zip_name, final HttpResponseListener callback)
 	{
-		Log.v("jiaojc","into method postDeviceData");
+		Log.v(TAG,"into method postDeviceData");
 		String url = ConstUtils.S_POST_DATA_URL + "?sid=" + GlobalContext.S_LOGIN_SESSION;
 		
 		FinalHttp fh = getFinalHttp();

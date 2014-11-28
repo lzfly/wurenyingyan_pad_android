@@ -2,7 +2,7 @@ package com.wuren.datacenter.bean;
 
 import java.util.Date;
 
-import android.util.Log;
+
 
 public class DeviceInfoBean {
 	

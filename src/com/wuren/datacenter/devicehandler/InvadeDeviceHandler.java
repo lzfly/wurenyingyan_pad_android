@@ -3,8 +3,6 @@ package com.wuren.datacenter.devicehandler;
 import com.wuren.datacenter.bean.DeviceInfoBean;
 import com.wuren.datacenter.util.HttpUtils;
 
-import android.util.Log;
-
 public class InvadeDeviceHandler {
 
 	public static void alarm(DeviceInfoBean device, byte[] data)
